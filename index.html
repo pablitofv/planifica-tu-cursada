@@ -156,6 +156,13 @@ button:focus:not(:focus-visible),select:focus:not(:focus-visible),input:focus:no
 
   <main style="flex:1;width:100%;max-width:1680px;margin:0 auto;padding:0 {{ L.side }} 32px">
 
+  <sc-if value="{{ avisoShow }}" hint-placeholder-val="{{ false }}">
+  <div role="status" style="margin-top:24px;max-width:760px;display:flex;align-items:flex-start;gap:8px;border-left:4px solid #E0005A;background:#FFFFFF;padding:12px 6px 12px 18px;border-radius:0 8px 8px 0;box-shadow:inset 0 0 0 1px #E2E3DF">
+    <span style="flex:1;display:flex;flex-direction:column;gap:4px;padding-top:2px"><span style="font-weight:700;font-size:15px">{{ avisoTitulo }}</span><span style="font-size:14px;line-height:1.45;color:#3A3D44">{{ avisoTexto }}</span></span>
+    <button onClick="{{ onCerrarAviso }}" aria-label="Cerrar aviso" style="all:unset;cursor:pointer;flex:none;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;color:#1C1E22" style-hover="background:#F0F0EC" style-focus="outline:2px solid #1C1E22;outline-offset:2px">×</button>
+  </div>
+  </sc-if>
+
   <sc-if value="{{ vHoy }}" hint-placeholder-val="{{ true }}">
   <div data-screen-label="1 Hoy" style="display:flex;flex-direction:column;gap:24px;padding-top:32px">
     <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:16px 32px;flex-wrap:wrap">
@@ -863,7 +870,7 @@ class Component extends DCLogic {
   static ORD = { taller: 0, obligatoria: 1, optativa: 2, cf: 3 };
   static SHOW = { taller: 0, obligatoria: 1, cf: 2, optativa: 3 };
 
-  fresh() { return { screen: 'inicio', step: 0, planId: null, anio: null, aprob: {}, insc: null, plan: null, semCount: 0, intSem: null, intRec: {}, notas: {}, view: 'hoy', sel: null, hover: null, mYear: 1, modal: null, error: null, nombreExp: '', pick: null, recOpen: false, drag: null, dropOver: null, moveId: null }; }
+  fresh() { return { screen: 'inicio', step: 0, planId: null, anio: null, aprob: {}, insc: null, plan: null, semCount: 0, intSem: null, intRec: {}, notas: {}, view: 'hoy', sel: null, hover: null, mYear: 1, modal: null, error: null, aviso: null, nombreExp: '', pick: null, recOpen: false, drag: null, dropOver: null, moveId: null }; }
   state = Object.assign({ ready: false, loadErr: false, w: window.innerWidth, lines: [] }, this.fresh());
   fileRef = React.createRef();
   gridRef = el => { this.gridEl = el; };
@@ -1075,7 +1082,7 @@ class Component extends DCLogic {
     const ey = Math.min(4, rest.length ? Math.max(year, Math.min(...rest.map(m => m.anio))) : year), N = c.P.carga ? c.P.carga[ey - 1] : c.mats.filter(m => m.anio === ey).length;
     return { ey, cap: Math.min(c.P.reglas.maxMaterias, Math.max(c.P.carga ? 1 : 4, half === 1 ? Math.ceil(N / 2) : Math.floor(N / 2))) };
   }
-  recIds(c) { const s = this.state; return s.intSem ? this.keys(s.intRec).filter(id => c.by[id] && !c.ap.has(id)) : []; }
+  recIds(c) { const s = this.state; return s.intSem && this.calK(s.intSem) >= 0 ? this.keys(s.intRec).filter(id => c.by[id] && !c.ap.has(id)) : []; }
   suggestion(c) { return this.fill(c, new Set(c.ap), 0, new Set(this.recIds(c))); }
   inscIds(c) {
     const s = this.state; if (this.semAt(0).cal === s.intSem) return [];
@@ -1199,7 +1206,7 @@ class Component extends DCLogic {
     const s = this.state, rec = this.recIds(c);
     if (!s.plan) { const sems = this.autoProject(c, s.intSem, rec); for (let k = sems.length; k < s.semCount; k++) sems.push(Object.assign({ ids: [] }, this.semAt(k))); return { sems, unplaced: [] }; }
     const insc = this.inscIds(c), used = new Set([...insc, ...rec]), plan = {};
-    Object.keys(s.plan).forEach(id => { if (c.by[id] && !c.ap.has(id) && !used.has(id)) plan[id] = s.plan[id]; });
+    Object.keys(s.plan).forEach(id => { const k = this.calK(s.plan[id]); if (c.by[id] && !c.ap.has(id) && !used.has(id) && k > 0 && k <= 16) plan[id] = s.plan[id]; });
     const maxK = Math.max(0, s.semCount - 1, ...Object.values(plan).map(x => this.calK(x)), s.intSem ? this.calK(s.intSem) : 0);
     const sems = [];
     for (let k = 0; k <= maxK; k++) { const info = this.semAt(k);
@@ -1249,7 +1256,7 @@ class Component extends DCLogic {
   editInsc(c, fn) { const cur = this.inscIds(c).slice(); this.setState({ insc: fn(cur), pick: null }); }
   exportObj() {
     const s = this.state, notas = {}; Object.keys(s.notas).forEach(k => { if (s.notas[k]) notas[k] = s.notas[k]; });
-    return { plan: s.planId, anio: s.anio, nombre: s.nombreExp || undefined, aprobadas: this.keys(s.aprob), inscripcion: s.insc, semestres: s.plan, cantidadSemestres: s.semCount || undefined, intercambio: s.intSem ? { semestre: s.intSem, reconocer: this.keys(s.intRec) } : null, notas };
+    return { version: 2, plan: s.planId, anio: s.anio, inscripcionSemestre: this.semAt(0).cal, nombre: s.nombreExp || undefined, aprobadas: this.keys(s.aprob), inscripcion: s.insc, semestres: s.plan, cantidadSemestres: s.semCount || undefined, intercambio: s.intSem ? { semestre: s.intSem, reconocer: this.keys(s.intRec) } : null, notas };
   }
   download() {
     const blob = new Blob([JSON.stringify(this.exportObj(), null, 2)], { type: 'application/json' });
@@ -1277,11 +1284,29 @@ class Component extends DCLogic {
       if (planKeys.length > 60 || planKeys.some(k => typeof plan[k] !== 'string' || !CAL.test(plan[k]))) return fail(BAD);
       if ([...d.aprobadas, ...(d.inscripcion || []), ...((int && int.reconocer) || []), ...planKeys].some(id => !ok.has(id))) return fail('Tiene materias que no son del ' + P.nombre + '. Revisá que sea tu archivo de progreso.');
       const o = a => { const r = {}; (a || []).forEach(i => { if (ok.has(i)) r[i] = true; }); return r; };
-      const cleanPlan = plan ? planKeys.reduce((r, k) => (r[k] = plan[k], r), {}) : null;
       const notas = {}; if (isObj(d.notas)) Object.keys(d.notas).forEach(k => { if (ok.has(k) && typeof d.notas[k] === 'string') notas[k] = d.notas[k].slice(0, 80); });
       const aprobSet = new Set(d.aprobadas);
-      const anio = Math.min(4, Math.max(1, Math.trunc(Number(d.anio)) || 1)), semCount = Math.min(16, Math.max(0, Math.trunc(Number(d.cantidadSemestres)) || 0));
-      this.setState(Object.assign(this.fresh(), { screen: 'app', planId: P.id, anio, mYear: anio, nombreExp: typeof d.nombre === 'string' ? d.nombre.slice(0, 80) : '', aprob: o(d.aprobadas), insc: d.inscripcion ? [...new Set(d.inscripcion)].filter(id => !aprobSet.has(id)).slice(0, 8) : null, plan: cleanPlan, semCount, intSem: int && int.semestre ? int.semestre : null, intRec: o(int && int.reconocer), notas }));
+      const anio = Math.min(4, Math.max(1, Math.trunc(Number(d.anio)) || 1));
+      let semCount = Math.min(16, Math.max(0, Math.trunc(Number(d.cantidadSemestres)) || 0));
+      // Un archivo de un semestre anterior: lo planeado para el semestre actual pasa a ser la inscripción,
+      // lo que quedó en semestres pasados o fuera de rango va a "Sin semestre" y la inscripción vieja se descarta.
+      const cur = this.nextId(), ci = this.sIdx(cur), dk = cal => this.sIdx(cal) - ci;
+      const fs = typeof d.inscripcionSemestre === 'string' && CAL.test(d.inscripcionSemestre) ? d.inscripcionSemestre : null;
+      let intSem = int && int.semestre ? int.semestre : null, intRec = o(int && int.reconocer);
+      const stale = fs ? dk(fs) < 0 : planKeys.some(k => dk(plan[k]) <= 0) || (!!intSem && dk(intSem) < 0);
+      let insc = d.inscripcion && !stale ? [...new Set(d.inscripcion)].filter(id => !aprobSet.has(id)).slice(0, 8) : null;
+      const ahora = [], cleanPlan = {}; let fuera = 0;
+      planKeys.forEach(k => { if (aprobSet.has(k)) return; const x = dk(plan[k]); if (x === 0 && stale) ahora.push(k); else if (x > 0 && x <= 16) cleanPlan[k] = plan[k]; else fuera++; });
+      if (ahora.length) insc = ahora.slice(0, 8);
+      const keepPlan = Object.keys(cleanPlan).length > 0;
+      if (fs && stale) semCount = Math.max(0, semCount + dk(fs));
+      const msgs = [];
+      if (stale) msgs.push('Marcá lo que aprobaste desde entonces en "Editar lo aprobado".');
+      if (ahora.length) msgs.push('Lo que habías planeado para el ' + this.sLbl(cur) + ' quedó como tu inscripción.');
+      if (intSem && (dk(intSem) < 0 || dk(intSem) > 16)) { msgs.push(dk(intSem) < 0 ? 'Tu intercambio del ' + this.sLbl(intSem) + ' ya pasó: si te reconocieron materias, marcalas como aprobadas.' : 'El semestre de intercambio de tu archivo no corresponde: volvé a elegirlo.'); intSem = null; intRec = {}; }
+      if (keepPlan && fuera) msgs.push(this.pl(fuera, 'materia') + (fuera === 1 ? ' quedó sin semestre: ubicala' : ' quedaron sin semestre: ubicalas') + ' en Semestres.');
+      const aviso = msgs.length ? { titulo: stale ? (fs ? 'Tu archivo es del ' + this.sLbl(fs) : 'Tu archivo es de un semestre anterior') : 'Revisamos tu archivo', texto: msgs.join(' ') } : null;
+      this.setState(Object.assign(this.fresh(), { screen: 'app', planId: P.id, anio, mYear: anio, nombreExp: typeof d.nombre === 'string' ? d.nombre.slice(0, 80) : '', aprob: o(d.aprobadas), insc, plan: keepPlan ? cleanPlan : null, semCount, intSem, intRec, notas, aviso }));
     };
     rd.readAsText(f);
   }
@@ -1324,6 +1349,7 @@ class Component extends DCLogic {
     const base = {
       L, mob, desk: !mob, fileRef: this.fileRef, onFile: e => this.loadFile(e), stop: e => e.stopPropagation(),
       isOnb: s.screen === 'inicio', isCarga: s.screen === 'carga' && !!s.planId && s.ready, isApp: s.screen === 'app' && !!s.planId && s.ready,
+      avisoShow: !!s.aviso, avisoTitulo: s.aviso ? s.aviso.titulo : '', avisoTexto: s.aviso ? s.aviso.texto : '', onCerrarAviso: () => this.setState({ aviso: null }),
       step0: s.step === 0, stepN: s.step > 0, step1: s.step === 1, step2: s.step === 2, errorShow: !!s.error || !!s.loadErr, errorTitle: s.loadErr ? 'No pudimos cargar el plan de estudios' : 'No pudimos abrir ese archivo', error: s.loadErr ? 'Revisá tu conexión y recargá la página.' : (s.error || ''),
       onRadioKeys: e => { const k = e.key, d = k === 'ArrowRight' || k === 'ArrowDown' ? 1 : k === 'ArrowLeft' || k === 'ArrowUp' ? -1 : 0; if (!d) return; e.preventDefault(); const r = [...e.currentTarget.querySelectorAll('[role=radio]')], i = Math.max(0, r.indexOf(document.activeElement)), n = r[(i + d + r.length) % r.length]; n.focus(); n.click(); },
       stepTitle: s.step === 1 ? '¿Qué plan cursás?' : '¿Qué año estás cursando?', stepAria: 'Paso ' + s.step + ' de 2', step2Bar: s.step === 2 ? '#FF0064' : '#3A3C43',

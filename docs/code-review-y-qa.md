@@ -198,3 +198,68 @@ Pendiente: bundle de producción y headers (§4), tabla de equivalencias, URLs i
 Es un sitio 100 % estático:
 `index.html` (la v8) + `support.js` + `datos/carrera.json` + `assets/`.
 Antes de publicar: §4 (CSP por `<meta>`, ya que Pages no permite headers propios; fuentes propias; sin `image-slot.js`; sin escenarios de prueba).
+
+---
+
+## 7. QA y ciberseguridad sobre el sitio publicado (19 oct 2026)
+
+Revisión hecha sobre https://pablitofv.github.io/planifica-tu-cursada/ (commit 3cc32f7), leyendo el código y probándolo en el navegador.
+
+### Método
+- Headers reales de GitHub Pages, CSP, SRI y dependencias de terceros.
+- Lectura de `support.js`: canales `postMessage`, API expuesta en `window`, carga de scripts y `new Function`.
+- Lectura de la lógica de `index.html`: `validateData`, `loadFile`, `safeUrl`, `exportObj`, `project`.
+- Validación de `carrera.json` con un script: ids duplicados, ciclos de correlativas, correlativas de años posteriores y carga por año.
+- Importaciones hostiles inyectadas en el selector de archivos del sitio publicado: HTML en el nombre, semestres en el pasado y en 2099, intercambio en 2099, y un archivo exportado antes de un cambio de semestre (con el reloj simulado en mayo de 2027).
+- axe-core 4.10 (WCAG 2.2 AA + buenas prácticas) en inicio, Hoy, Inscripción, Semestres y Exportar.
+- Desbordes horizontales y áreas táctiles a 360, 768 y 1280 px.
+- Configuración del repo en GitHub (API).
+
+### Alta
+| # | Hallazgo | Cómo se reproduce | Recomendación |
+|---|---|---|---|
+| R1 | **Al retomar un archivo después de un cambio de semestre, hay materias que desaparecen sin aviso, y la inscripción vieja aparece como la actual.** `project()` arma el semestre 0 con `insc` e ignora las entradas de `plan` cuyo semestre es el actual o uno pasado. Tampoco las cuenta como "Sin semestre", porque tienen valor en `plan`. El archivo no guarda a qué semestre corresponde la inscripción. | Exportar en octubre de 2026 después de mover una materia (inscripción 2027-1, plan desde 2027-2) y abrirlo en mayo de 2027. Taller de Prospectiva y Electiva de Historia (planificadas para 2027-2) no aparecen en ningún lado, y lo que se cursó en 2027-1 aparece como inscripción de 2027-2. Pasa igual con cualquier semestre pasado en `semestres`. Es el caso de uso principal de "Archivo para retomar". | Guardar `inscripcionSemestre` y `version` en el export. Al importar, si ese semestre ya pasó: preguntar qué materias aprobó de esa inscripción, y mandar a "Sin semestre" las entradas de `plan` del semestre actual o anteriores. En `project()`, nunca descartar una materia pendiente sin mostrarla. |
+
+### Media
+| # | Hallazgo | Recomendación |
+|---|---|---|
+| R2 | **La CSP permite cualquier script de unpkg, más `'unsafe-eval'`.** Lo comprobé cargando axe-core desde la página: cualquier paquete npm es ejecutable. No encontré ninguna vía de inyección, así que es defensa en profundidad (ya figura como S5). | Hacer el build estático con React propio y `script-src 'self'` (paso 2 del `CLAUDE.md`). |
+| R3 | **Disponibilidad:** si unpkg o Google Fonts fallan, la página queda en blanco. No hay respaldo. | Se resuelve con el mismo build estático, sirviendo React y Roboto desde el sitio. |
+| R4 | **La importación acepta semestres fuera de rango.** `CAL` admite cualquier `20xx-[12]`. Con `semestres: { k230: "2099-2" }` se dibujan 146 semestres. Con valores pasados, la materia desaparece (ver R1). | Aceptar solo semestres entre el semestre 0 y +16, o dentro de `calendario`. Lo que quede fuera va a "Sin semestre". |
+| R5 | **Repo público con superficies que no se usan:** wiki, issues y projects activos, Actions habilitado para todo, y el reporte privado de vulnerabilidades apagado (`SECURITY.md` pide no abrir issues públicos). | Apagar wiki, projects y Actions. Activar el reporte privado de vulnerabilidades. Opcional: apagar issues. |
+| R6 | **El archivo exportado lleva nombre e historial académico, y el diálogo no lo avisa** (S12 sigue pendiente). Los archivos circulan entre compañeros. | Una línea en el diálogo de exportar: "El archivo incluye tu nombre y lo que aprobaste." |
+| R7 | **Plan 2027:** se muestran 2°, 3° y 4° año, que no existen hasta 2028 (pendiente de la v6). 13 materias siguen con `sinDefinir`. | Definir con la carrera qué se muestra hasta 2028. |
+
+### Baja
+| # | Hallazgo | Recomendación |
+|---|---|---|
+| R8 | **Origen compartido:** todo lo publicado en `pablitofv.github.io` (también `escritos`) es el mismo origen. Un script en otro sitio de la cuenta podría abrir esta app en un iframe y usar la API del editor que el runtime deja en `window` (`__dcUpdate`, `__dcSetProps`), que permite inyectar lógica. Hoy no hay datos que robar. | No sumar scripts de terceros a otros sitios de la cuenta, o servir la app desde un dominio o subdominio propio. El build estático elimina esa API. |
+| R9 | **Se puede incrustar en iframes de otros sitios** (no hay `X-Frame-Options` y `frame-ancestors` no funciona vía `<meta>`). No hay acciones sensibles, así que el clickjacking no tiene impacto. | Lo resuelve un hosting con headers propios (si algún día hace falta). |
+| R10 | **Las fechas de `calendario` son de ejemplo** (`_nota`). No se muestran: `inscFecha` se calcula pero la plantilla no la usa. Lo que sí deciden es cuándo la app pasa al semestre siguiente. La v5 dice que la fecha "se ve en Inscripción", y ya no es así. | Cargar las fechas reales antes de marzo de 2027. Decidir si la fecha límite se muestra o si se borra `inscFecha`. |
+| R11 | **Áreas táctiles por debajo del estándar del proyecto (44 px), pero dentro de WCAG 2.2 AA (24 px):** "Editar lo aprobado" mide 28 px de alto, "Volver a empezar" 40 px de ancho, "Cerrar" del diálogo 40×40 y los chips de cambio 36 px. | Subir a 44 px "Editar lo aprobado", "Volver a empezar" y "Cerrar". |
+| R12 | **axe:** contraste del placeholder "Tu nombre" en el póster (decorativo, ya conocido) y contenido fuera de landmarks en inicio. | Poner el inicio dentro de `main`. |
+| R13 | El runtime vuelve a descargar la página entera (`fetch(location.href)`, 195 KB) en cada carga. | Desaparece con el build estático. |
+| R14 | "Descargar PDF" abre el diálogo de impresión, no descarga nada. | "Imprimir o guardar como PDF". |
+| R15 | No se pudo verificar el 2FA de la cuenta con la API. | Revisarlo en github.com/settings/security. |
+
+### Verificado sin problemas
+- **XSS:** un nombre con `<img src=x onerror=…>` se muestra como texto y no crea ningún elemento. El código propio no usa `innerHTML`, `eval` ni `dangerouslySetInnerHTML`. El único `href` dinámico pasa por `safeUrl`.
+- **Importación:** tipos, tope de 100 KB, ids contra el plan y claves copiadas solo si existen en el plan (no hay prototype pollution).
+- **`postMessage`:** el runtime solo escucha `__dc_theme` y `__dc_probe`, ninguno de los dos ejecuta nada.
+- **Terceros:** React y ReactDOM 18.3.1 se cargan con SRI sha384. Babel no se carga.
+- **Transporte:** HTTPS forzado, HSTS de Pages y redirección 301 desde http. `robots.txt` bloquea la indexación.
+- **`carrera.json`:** sin ids duplicados, sin ciclos de correlativas y sin correlativas de años posteriores. Las cargas coinciden con las invariantes (2023: 10·10·8·8; 2027: 8·10·10·8).
+- **Pantallas:** sin desbordes horizontales a 360, 768 y 1280 px en Hoy, Inscripción, Semestres y Exportar. Sin errores de consola.
+- **Repo:** secret scanning y protección de push activos, `main` protegida (PR, sin force push y sin borrado), un solo colaborador, sin deploy keys ni webhooks.
+
+### Orden sugerido
+1. R1 y R4 (afectan a estudiantes reales desde marzo de 2027).
+2. R5, R6 y R15 (cinco minutos).
+3. Build estático (R2, R3, R8, R13).
+4. R7 y R10 con la carrera.
+
+### Corregido (19 oct 2026)
+- **R1 ✓** `project()` ya no oculta materias: una entrada de `semestres` del semestre actual, de uno pasado o de más de 16 semestres adelante pasa a "Sin semestre". `recIds()` ignora un intercambio pasado. El export ahora incluye `version: 2` e `inscripcionSemestre`. Al importar un archivo de un semestre anterior (con `inscripcionSemestre`, o deducido de `semestres` o del intercambio en archivos viejos): lo planeado para el semestre actual pasa a ser la inscripción, la inscripción vieja se descarta, un intercambio pasado se quita, y un aviso arriba de las vistas explica qué cambió y pide marcar lo aprobado desde entonces.
+- **R4 ✓** Semestres fuera de rango al importar: más de 16 semestres adelante o en el pasado van a "Sin semestre". Si no queda ningún semestre manual válido, vuelve la proyección automática. Un intercambio fuera de rango se quita con aviso.
+- Probado en el navegador con el reloj simulado en mayo de 2027: archivo v2, archivo viejo sin `inscripcionSemestre`, intercambio pasado, semestres en 2099 (1 semestre en vez de 146) y mezcla de válidos con inválidos. Ninguna materia pendiente desaparece. El export queda bien en la ida y vuelta. Sin desbordes a 360 px, el botón del aviso mide 44 px y axe no marca nada.
+- **R5 ✓** Repo: wiki, projects y Actions apagados; reporte privado de vulnerabilidades activo.
