@@ -1,0 +1,1326 @@
+{
+  "version": "2026-10-08",
+  "carrera": {
+    "nombre": "Licenciatura en Diseño",
+    "marca": "Diseño",
+    "universidad": "Universidad de San Andrés",
+    "contacto": "diseno@udesa.edu.ar"
+  },
+  "_nota": "Archivo editable por la carrera. Fechas del calendario son de ejemplo. Optativas 2027-1 tentativas.",
+  "calendario": [
+    {
+      "id": "2026-2",
+      "inicio": "2026-08-10",
+      "cambiosHasta": "2026-08-21",
+      "inscripcionDesde": "2026-07-01"
+    },
+    {
+      "id": "2027-1",
+      "inicio": "2027-03-16",
+      "cambiosHasta": "2027-03-27",
+      "inscripcionDesde": "2026-12-01"
+    },
+    {
+      "id": "2027-2",
+      "inicio": "2027-08-10",
+      "cambiosHasta": "2027-08-21",
+      "inscripcionDesde": "2027-07-01"
+    },
+    {
+      "id": "2028-1",
+      "inicio": "2028-03-16",
+      "cambiosHasta": "2028-03-27",
+      "inscripcionDesde": "2027-12-01"
+    },
+    {
+      "id": "2028-2",
+      "inicio": "2028-08-10",
+      "cambiosHasta": "2028-08-21",
+      "inscripcionDesde": "2028-07-01"
+    },
+    {
+      "id": "2029-1",
+      "inicio": "2029-03-16",
+      "cambiosHasta": "2029-03-27",
+      "inscripcionDesde": "2028-12-01"
+    },
+    {
+      "id": "2029-2",
+      "inicio": "2029-08-10",
+      "cambiosHasta": "2029-08-21",
+      "inscripcionDesde": "2029-07-01"
+    },
+    {
+      "id": "2030-1",
+      "inicio": "2030-03-16",
+      "cambiosHasta": "2030-03-27",
+      "inscripcionDesde": "2029-12-01"
+    },
+    {
+      "id": "2030-2",
+      "inicio": "2030-08-10",
+      "cambiosHasta": "2030-08-21",
+      "inscripcionDesde": "2030-07-01"
+    },
+    {
+      "id": "2031-1",
+      "inicio": "2031-03-16",
+      "cambiosHasta": "2031-03-27",
+      "inscripcionDesde": "2030-12-01"
+    },
+    {
+      "id": "2031-2",
+      "inicio": "2031-08-10",
+      "cambiosHasta": "2031-08-21",
+      "inscripcionDesde": "2031-07-01"
+    },
+    {
+      "id": "2032-1",
+      "inicio": "2032-03-16",
+      "cambiosHasta": "2032-03-27",
+      "inscripcionDesde": "2031-12-01"
+    },
+    {
+      "id": "2032-2",
+      "inicio": "2032-08-10",
+      "cambiosHasta": "2032-08-21",
+      "inscripcionDesde": "2032-07-01"
+    },
+    {
+      "id": "2033-1",
+      "inicio": "2033-03-16",
+      "cambiosHasta": "2033-03-27",
+      "inscripcionDesde": "2032-12-01"
+    },
+    {
+      "id": "2033-2",
+      "inicio": "2033-08-10",
+      "cambiosHasta": "2033-08-21",
+      "inscripcionDesde": "2033-07-01"
+    }
+  ],
+  "reglas": {
+    "maxMaterias": 5,
+    "maxTalleres": 1,
+    "maxOptativas": 1,
+    "intercambio": [
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        1
+      ]
+    ],
+    "maxReconocerOptativas": 2
+  },
+  "programas": {
+    "carpeta": "https://drive.google.com/drive/folders/1XDwdnSVBNXqvVFDeNzpi35wtFkvufAUP"
+  },
+  "optativas": {
+    "2023-1": [
+      {
+        "id": "k556",
+        "codigo": "K556",
+        "titulo": "Diseño de objetos conectados"
+      },
+      {
+        "id": "k560",
+        "codigo": "K560",
+        "titulo": "Soluciones Digitales"
+      },
+      {
+        "id": "k562",
+        "codigo": "K562",
+        "titulo": "Diseño Expandido"
+      },
+      {
+        "id": "k565",
+        "codigo": "K565",
+        "titulo": "Diseño y género"
+      }
+    ],
+    "2023-2": [
+      {
+        "id": "k558",
+        "codigo": "K558",
+        "titulo": "Heurística del Diseño"
+      },
+      {
+        "id": "k566",
+        "codigo": "K566",
+        "titulo": "Diseño basado en datos"
+      },
+      {
+        "id": "k567",
+        "codigo": "K567",
+        "titulo": "Behavioral Design Studio"
+      },
+      {
+        "id": "k568",
+        "codigo": "K568",
+        "titulo": "Diseño de entornos inmersivos"
+      }
+    ],
+    "2024-1": [
+      {
+        "id": "k556",
+        "codigo": "K556",
+        "titulo": "Diseño de objetos conectados"
+      },
+      {
+        "id": "k562",
+        "codigo": "K562",
+        "titulo": "Diseño Expandido"
+      },
+      {
+        "id": "k569",
+        "codigo": "K569",
+        "titulo": "Diseño, género y desigualdad"
+      },
+      {
+        "id": "k570",
+        "codigo": "K570",
+        "titulo": "Diseño de servicios para la economía circular"
+      }
+    ],
+    "2024-2": [
+      {
+        "id": "k558",
+        "codigo": "K558",
+        "titulo": "Heurística del Diseño"
+      },
+      {
+        "id": "k566",
+        "codigo": "K566",
+        "titulo": "Diseño basado en datos"
+      },
+      {
+        "id": "k568",
+        "codigo": "K568",
+        "titulo": "Diseño de entornos inmersivos"
+      },
+      {
+        "id": "k571",
+        "codigo": "K571",
+        "titulo": "Emprender en el Mundo del Diseño"
+      }
+    ],
+    "2025-1": [
+      {
+        "id": "k556",
+        "codigo": "K556",
+        "titulo": "Diseño de objetos conectados"
+      },
+      {
+        "id": "k562",
+        "codigo": "K562",
+        "titulo": "Diseño Expandido"
+      },
+      {
+        "id": "k566",
+        "codigo": "K566",
+        "titulo": "Diseño basado en datos"
+      },
+      {
+        "id": "k572",
+        "codigo": "K572",
+        "titulo": "Redesigning Services for a Circular Economy"
+      }
+    ],
+    "2025-2": [
+      {
+        "id": "k558",
+        "codigo": "K558",
+        "titulo": "Heurística del Diseño"
+      },
+      {
+        "id": "k560",
+        "codigo": "K560",
+        "titulo": "Soluciones Digitales"
+      },
+      {
+        "id": "k571",
+        "codigo": "K571",
+        "titulo": "Emprender en el Mundo del Diseño"
+      }
+    ],
+    "2026-1": [
+      {
+        "id": "k562",
+        "codigo": "K562",
+        "titulo": "Diseño Expandido"
+      },
+      {
+        "id": "k572",
+        "codigo": "K572",
+        "titulo": "Redesigning Services for a Circular Economy"
+      },
+      {
+        "id": "k573",
+        "codigo": "K573",
+        "titulo": "Diseño con Propósito"
+      },
+      {
+        "id": "k574",
+        "codigo": "K574",
+        "titulo": "Laboratorio de Interacciones Tangibles"
+      }
+    ],
+    "2026-2": [
+      {
+        "id": "k558",
+        "codigo": "K558",
+        "titulo": "Heurística del Diseño"
+      },
+      {
+        "id": "k560",
+        "codigo": "K560",
+        "titulo": "Soluciones Digitales"
+      },
+      {
+        "id": "k575",
+        "codigo": "K575",
+        "titulo": "Branding real y diseño de marcas exitosas"
+      },
+      {
+        "id": "k576",
+        "codigo": "K576",
+        "titulo": "Sistemas generativos para diseño"
+      }
+    ],
+    "2027-1": [
+      {
+        "id": "k562",
+        "codigo": "K562",
+        "titulo": "Diseño Expandido"
+      },
+      {
+        "id": "tecnolog-a-y-dise-o",
+        "titulo": "Tecnología y Diseño"
+      }
+    ]
+  },
+  "planes": {
+    "2023": {
+      "id": "2023",
+      "nombre": "Plan 2023",
+      "ingreso": "Ingreso 2023–2026",
+      "materias": [
+        {
+          "id": "k030",
+          "codigo": "K030",
+          "nombre": "Taller de Iteración",
+          "cat": "taller",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "k031",
+          "codigo": "K031",
+          "nombre": "Taller de Interacción",
+          "cat": "taller",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "k530",
+          "codigo": "K530",
+          "nombre": "Seminario de Profundización Tecnológica I",
+          "corto": "Seminario Tecnológico I",
+          "cat": "obligatoria",
+          "anio": 1,
+          "programa": null,
+          "pegadaA": "k030"
+        },
+        {
+          "id": "k531",
+          "codigo": "K531",
+          "nombre": "Seminario de Profundización Tecnológica II",
+          "corto": "Seminario Tecnológico II",
+          "cat": "obligatoria",
+          "anio": 1,
+          "programa": null,
+          "pegadaA": "k031"
+        },
+        {
+          "id": "c020",
+          "codigo": "C020",
+          "nombre": "Introducción a los métodos cuantitativos",
+          "corto": "Métodos cuantitativos",
+          "cat": "cf",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "e010",
+          "codigo": "E010",
+          "nombre": "Economía I",
+          "cat": "cf",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "a016",
+          "codigo": "A016",
+          "nombre": "Fundamentos de Administración",
+          "cat": "cf",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "cf-historia",
+          "codigo": null,
+          "nombre": "Electiva de Historia",
+          "cat": "cf",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "cf-literatura",
+          "codigo": null,
+          "nombre": "Electiva de Literatura",
+          "cat": "cf",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "cf-filosofia",
+          "codigo": null,
+          "nombre": "Electiva de Filosofía",
+          "cat": "cf",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "k231",
+          "codigo": "K231",
+          "nombre": "Taller de Sustentabilidad",
+          "cat": "taller",
+          "anio": 2,
+          "programa": null
+        },
+        {
+          "id": "k230",
+          "codigo": "K230",
+          "nombre": "Taller de Prospectiva",
+          "cat": "taller",
+          "anio": 2,
+          "programa": null
+        },
+        {
+          "id": "k630",
+          "codigo": "K630",
+          "nombre": "Seminario de Profundización Tecnológica III",
+          "corto": "Seminario Tecnológico III",
+          "cat": "obligatoria",
+          "anio": 2,
+          "programa": null,
+          "pegadaA": "k230"
+        },
+        {
+          "id": "k631",
+          "codigo": "K631",
+          "nombre": "Seminario de Profundización Tecnológica IV",
+          "corto": "Seminario Tecnológico IV",
+          "cat": "obligatoria",
+          "anio": 2,
+          "programa": null,
+          "pegadaA": "k231"
+        },
+        {
+          "id": "k240",
+          "codigo": "K240",
+          "nombre": "Pensamiento Proyectual",
+          "cat": "cf",
+          "anio": 2,
+          "programa": null
+        },
+        {
+          "id": "h209",
+          "codigo": "H209",
+          "nombre": "Escritura y Oratoria",
+          "cat": "cf",
+          "anio": 2,
+          "programa": null
+        },
+        {
+          "id": "cc100",
+          "codigo": "CC100",
+          "nombre": "Teoría Sociológica Contemporánea",
+          "corto": "Teoría Sociológica",
+          "cat": "cf",
+          "anio": 2,
+          "programa": null
+        },
+        {
+          "id": "cf-psicologia",
+          "codigo": null,
+          "nombre": "Psicología general",
+          "cat": "cf",
+          "anio": 2,
+          "programa": null
+        },
+        {
+          "id": "cf-arte",
+          "codigo": null,
+          "nombre": "Electiva de Arte",
+          "cat": "cf",
+          "anio": 2,
+          "programa": null
+        },
+        {
+          "id": "cf-ciencias",
+          "codigo": null,
+          "nombre": "Electiva de Ciencias",
+          "cat": "cf",
+          "anio": 2,
+          "programa": null
+        },
+        {
+          "id": "k330",
+          "codigo": "K330",
+          "nombre": "Taller de Mercado",
+          "cat": "taller",
+          "anio": 3,
+          "cant": {
+            "talleres": 0,
+            "materias": 12
+          },
+          "programa": null,
+          "req": [
+            "k030",
+            "k031",
+            "k240"
+          ],
+          "reqAny": [
+            [
+              "k230",
+              "k231"
+            ]
+          ]
+        },
+        {
+          "id": "k331",
+          "codigo": "K331",
+          "nombre": "Taller de Narrativas",
+          "cat": "taller",
+          "anio": 3,
+          "cant": {
+            "talleres": 0,
+            "materias": 12
+          },
+          "programa": null,
+          "req": [
+            "k030",
+            "k031",
+            "k240"
+          ],
+          "reqAny": [
+            [
+              "k230",
+              "k231"
+            ]
+          ]
+        },
+        {
+          "id": "k340",
+          "codigo": "K340",
+          "nombre": "Diseño de Información",
+          "cat": "obligatoria",
+          "anio": 3,
+          "cant": {
+            "talleres": 0,
+            "materias": 14
+          },
+          "programa": null,
+          "req": [
+            "k030",
+            "k031",
+            "k240"
+          ],
+          "reqAny": [
+            [
+              "k230",
+              "k231"
+            ]
+          ]
+        },
+        {
+          "id": "k341",
+          "codigo": "K341",
+          "nombre": "Etnografía y Diseño",
+          "cat": "obligatoria",
+          "anio": 3,
+          "cant": {
+            "talleres": 0,
+            "materias": 12
+          },
+          "programa": null,
+          "req": [
+            "k030",
+            "k031"
+          ]
+        },
+        {
+          "id": "k441",
+          "codigo": "K441",
+          "nombre": "Escenarios Futuros",
+          "cat": "obligatoria",
+          "anio": 3,
+          "cant": {
+            "talleres": 0,
+            "materias": 12
+          },
+          "programa": null,
+          "req": [
+            "k030",
+            "k031"
+          ]
+        },
+        {
+          "id": "k343",
+          "codigo": "K343",
+          "nombre": "Estudios de Tendencias",
+          "cat": "obligatoria",
+          "anio": 3,
+          "cant": {
+            "talleres": 0,
+            "materias": 12
+          },
+          "programa": null,
+          "req": [
+            "k030",
+            "k031",
+            "k230"
+          ]
+        },
+        {
+          "id": "opt-1",
+          "codigo": null,
+          "nombre": "Optativa I",
+          "cat": "optativa",
+          "anio": 3,
+          "cant": {
+            "talleres": 0,
+            "materias": 12
+          },
+          "programa": null,
+          "req": [
+            "k030",
+            "k031"
+          ],
+          "reqAny": [
+            [
+              "k230",
+              "k231"
+            ]
+          ]
+        },
+        {
+          "id": "opt-2",
+          "codigo": null,
+          "nombre": "Optativa II",
+          "cat": "optativa",
+          "anio": 3,
+          "cant": {
+            "talleres": 0,
+            "materias": 12
+          },
+          "programa": null,
+          "req": [
+            "k030",
+            "k031"
+          ],
+          "reqAny": [
+            [
+              "k230",
+              "k231"
+            ]
+          ]
+        },
+        {
+          "id": "k430",
+          "codigo": "K430",
+          "nombre": "Taller de Portafolio",
+          "cat": "taller",
+          "anio": 4,
+          "cant": {
+            "talleres": 0,
+            "materias": 20
+          },
+          "programa": null,
+          "dictadoComo": "Taller de Sistemas Inteligentes",
+          "req": [
+            "k030",
+            "k031",
+            "k230",
+            "k231",
+            "k330",
+            "k331",
+            "e010",
+            "c020",
+            "h209",
+            "cf-historia",
+            "cf-filosofia",
+            "cf-ciencias",
+            "cf-literatura",
+            "cf-arte",
+            "k240",
+            "a016"
+          ]
+        },
+        {
+          "id": "k431",
+          "codigo": "K432",
+          "nombre": "Taller de Entornos Complejos",
+          "cat": "taller",
+          "anio": 4,
+          "cant": {
+            "talleres": 0,
+            "materias": 20
+          },
+          "programa": null,
+          "req": [
+            "k030",
+            "k031",
+            "k230",
+            "k231",
+            "k330",
+            "k331",
+            "e010",
+            "c020",
+            "h209",
+            "cf-historia",
+            "cf-filosofia",
+            "cf-ciencias",
+            "cf-literatura",
+            "cf-arte",
+            "k240",
+            "a016"
+          ]
+        },
+        {
+          "id": "k440",
+          "codigo": "K440",
+          "nombre": "Usabilidad y Factores Humanos",
+          "cat": "obligatoria",
+          "anio": 4,
+          "cant": {
+            "talleres": 0,
+            "materias": 20
+          },
+          "programa": null,
+          "req": [
+            "k030",
+            "k031",
+            "k230",
+            "k231",
+            "k341",
+            "e010",
+            "c020",
+            "h209",
+            "cf-historia",
+            "cf-filosofia",
+            "cf-ciencias",
+            "cf-literatura",
+            "cf-arte",
+            "k240",
+            "a016"
+          ]
+        },
+        {
+          "id": "k442",
+          "codigo": "K442",
+          "nombre": "Métodos de Diagnóstico",
+          "cat": "obligatoria",
+          "anio": 4,
+          "cant": {
+            "talleres": 0,
+            "materias": 20
+          },
+          "programa": null,
+          "req": [
+            "k030",
+            "k031",
+            "k230",
+            "k231",
+            "e010",
+            "c020",
+            "h209",
+            "cf-historia",
+            "cf-filosofia",
+            "cf-ciencias",
+            "cf-literatura",
+            "cf-arte",
+            "k240",
+            "a016"
+          ]
+        },
+        {
+          "id": "k342",
+          "codigo": "K342",
+          "nombre": "Sistema Industrial y Modelos de Negocio",
+          "corto": "Sistema Industrial",
+          "cat": "obligatoria",
+          "anio": 4,
+          "cant": {
+            "talleres": 0,
+            "materias": 16
+          },
+          "programa": null,
+          "dictadoComo": "Entrepreneurship",
+          "req": [
+            "k030",
+            "k031",
+            "k230",
+            "k231",
+            "e010",
+            "c020",
+            "h209",
+            "cf-historia",
+            "cf-filosofia",
+            "cf-ciencias",
+            "cf-literatura",
+            "cf-arte",
+            "k240",
+            "a016"
+          ]
+        },
+        {
+          "id": "k488",
+          "codigo": "K488",
+          "nombre": "Taller Trabajo de Graduación",
+          "corto": "Trabajo de Graduación",
+          "cat": "obligatoria",
+          "anio": 4,
+          "cant": {
+            "talleres": 0,
+            "materias": 26
+          },
+          "programa": null,
+          "req": [
+            "k030",
+            "k031",
+            "k230",
+            "k231",
+            "k330",
+            "k331",
+            "k341",
+            "e010",
+            "c020",
+            "h209",
+            "cf-historia",
+            "cf-filosofia",
+            "cf-ciencias",
+            "cf-literatura",
+            "cf-arte",
+            "k240",
+            "a016"
+          ],
+          "ultimo": true
+        },
+        {
+          "id": "opt-3",
+          "codigo": null,
+          "nombre": "Optativa III",
+          "cat": "optativa",
+          "anio": 4,
+          "cant": {
+            "talleres": 0,
+            "materias": 12
+          },
+          "programa": null,
+          "req": [
+            "k030",
+            "k031"
+          ],
+          "reqAny": [
+            [
+              "k230",
+              "k231"
+            ]
+          ]
+        },
+        {
+          "id": "opt-4",
+          "codigo": null,
+          "nombre": "Optativa IV",
+          "cat": "optativa",
+          "anio": 4,
+          "cant": {
+            "talleres": 0,
+            "materias": 12
+          },
+          "programa": null,
+          "req": [
+            "k030",
+            "k031"
+          ],
+          "reqAny": [
+            [
+              "k230",
+              "k231"
+            ]
+          ]
+        }
+      ],
+      "carga": [
+        10,
+        10,
+        8,
+        8
+      ]
+    },
+    "2027": {
+      "id": "2027",
+      "nombre": "Plan 2027",
+      "ingreso": "Ingreso desde 2027",
+      "materias": [
+        {
+          "id": "t-interaccion",
+          "codigo": "K031",
+          "nombre": "Taller de Interacción",
+          "cat": "taller",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "o-materia",
+          "codigo": null,
+          "nombre": "Materia y Representación",
+          "cat": "obligatoria",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "o-imagen",
+          "codigo": null,
+          "nombre": "Imagen y medios",
+          "cat": "obligatoria",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "f-etnografia",
+          "codigo": null,
+          "nombre": "Etnografía",
+          "cat": "cf",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "f-psicologia",
+          "codigo": null,
+          "nombre": "Psicología general",
+          "cat": "cf",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "f-administracion",
+          "codigo": "A016",
+          "nombre": "Fundamentos de Administración",
+          "cat": "cf",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "f-pensamiento",
+          "codigo": "K240",
+          "nombre": "Taller de Pensamiento Proyectual",
+          "cat": "taller",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "f-cuantitativos",
+          "codigo": "C020",
+          "nombre": "Introducción a los métodos cuantitativos",
+          "corto": "Métodos cuantitativos",
+          "cat": "cf",
+          "anio": 1,
+          "programa": null
+        },
+        {
+          "id": "t-sustentabilidad",
+          "codigo": "K231",
+          "nombre": "Taller de Sustentabilidad",
+          "cat": "taller",
+          "anio": 2,
+          "req": [
+            "t-interaccion",
+            "o-materia",
+            "o-imagen",
+            "f-pensamiento"
+          ],
+          "programa": null
+        },
+        {
+          "id": "t-codiseno",
+          "codigo": null,
+          "nombre": "Taller de Co-Diseño",
+          "cat": "taller",
+          "anio": 2,
+          "req": [
+            "t-interaccion",
+            "o-materia",
+            "o-imagen",
+            "f-pensamiento"
+          ],
+          "programa": null
+        },
+        {
+          "id": "o-informacion",
+          "codigo": "K340",
+          "nombre": "Diseño de Información",
+          "cat": "obligatoria",
+          "anio": 2,
+          "req": [
+            "o-materia",
+            "o-imagen"
+          ],
+          "programa": null
+        },
+        {
+          "id": "o-tecnologia",
+          "codigo": null,
+          "nombre": "Tecnología y Diseño",
+          "cat": "obligatoria",
+          "anio": 2,
+          "req": [
+            "o-materia",
+            "o-imagen",
+            "f-cuantitativos"
+          ],
+          "programa": null
+        },
+        {
+          "id": "o-narrativas",
+          "codigo": "K331",
+          "nombre": "Narrativas",
+          "cat": "obligatoria",
+          "anio": 2,
+          "req": [
+            "o-materia",
+            "o-imagen"
+          ],
+          "programa": null
+        },
+        {
+          "id": "p-transversal-a",
+          "codigo": null,
+          "nombre": "Taller Transversal A",
+          "cat": "optativa",
+          "anio": 2,
+          "sinDefinir": true,
+          "programa": null
+        },
+        {
+          "id": "p-optativa-1",
+          "codigo": null,
+          "nombre": "Optativa I",
+          "cat": "optativa",
+          "anio": 2,
+          "sinDefinir": true,
+          "programa": null
+        },
+        {
+          "id": "f-ciencias",
+          "codigo": null,
+          "nombre": "Electiva de Ciencias",
+          "cat": "cf",
+          "anio": 2,
+          "sinDefinir": true,
+          "programa": null
+        },
+        {
+          "id": "f-historia",
+          "codigo": null,
+          "nombre": "Electiva de Historia",
+          "cat": "cf",
+          "anio": 2,
+          "sinDefinir": true,
+          "programa": null
+        },
+        {
+          "id": "f-filosofia",
+          "codigo": null,
+          "nombre": "Electiva de Filosofía",
+          "cat": "cf",
+          "anio": 2,
+          "sinDefinir": true,
+          "programa": null
+        },
+        {
+          "id": "t-mercado",
+          "codigo": "K330",
+          "nombre": "Taller de Mercado",
+          "cat": "taller",
+          "anio": 3,
+          "req": [
+            "f-etnografia",
+            "f-psicologia",
+            "f-administracion",
+            "f-cuantitativos",
+            "t-sustentabilidad",
+            "t-codiseno"
+          ],
+          "programa": null
+        },
+        {
+          "id": "t-prospectiva",
+          "codigo": "K230",
+          "nombre": "Taller de Prospectiva",
+          "cat": "taller",
+          "anio": 3,
+          "req": [
+            "f-etnografia",
+            "f-psicologia",
+            "f-administracion",
+            "f-cuantitativos",
+            "t-sustentabilidad",
+            "t-codiseno"
+          ],
+          "programa": null
+        },
+        {
+          "id": "o-diagnostico",
+          "codigo": "K442",
+          "nombre": "Métodos de Diagnóstico",
+          "cat": "obligatoria",
+          "anio": 3,
+          "req": [
+            "t-interaccion",
+            "o-materia",
+            "o-imagen",
+            "f-etnografia",
+            "f-psicologia",
+            "f-administracion",
+            "f-pensamiento",
+            "f-cuantitativos"
+          ],
+          "programa": null
+        },
+        {
+          "id": "o-usabilidad",
+          "codigo": "K440",
+          "nombre": "Usabilidad y Factores Humanos",
+          "cat": "obligatoria",
+          "anio": 3,
+          "req": [
+            "t-interaccion",
+            "f-etnografia",
+            "f-psicologia",
+            "f-administracion",
+            "f-pensamiento",
+            "o-informacion",
+            "o-tecnologia"
+          ],
+          "programa": null
+        },
+        {
+          "id": "o-entrepreneurship",
+          "codigo": null,
+          "nombre": "Entrepreneurship",
+          "cat": "obligatoria",
+          "anio": 3,
+          "req": [
+            "t-interaccion",
+            "o-materia",
+            "o-imagen",
+            "f-etnografia",
+            "f-psicologia",
+            "f-administracion",
+            "f-pensamiento",
+            "f-cuantitativos"
+          ],
+          "programa": null
+        },
+        {
+          "id": "o-escenarios",
+          "codigo": "K441",
+          "nombre": "Escenarios Futuros",
+          "cat": "obligatoria",
+          "anio": 3,
+          "req": [
+            "t-interaccion",
+            "o-materia",
+            "o-imagen",
+            "f-etnografia",
+            "f-psicologia",
+            "f-administracion",
+            "f-pensamiento",
+            "f-cuantitativos"
+          ],
+          "programa": null
+        },
+        {
+          "id": "p-transversal-b",
+          "codigo": null,
+          "nombre": "Taller Transversal B",
+          "cat": "optativa",
+          "anio": 3,
+          "sinDefinir": true,
+          "programa": null
+        },
+        {
+          "id": "p-optativa-2",
+          "codigo": null,
+          "nombre": "Optativa II",
+          "cat": "optativa",
+          "anio": 3,
+          "sinDefinir": true,
+          "programa": null
+        },
+        {
+          "id": "f-economia",
+          "codigo": "E010",
+          "nombre": "Economía I",
+          "cat": "cf",
+          "anio": 3,
+          "sinDefinir": true,
+          "programa": null
+        },
+        {
+          "id": "f-escritura",
+          "codigo": "H209",
+          "nombre": "Escritura y Oratoria",
+          "cat": "cf",
+          "anio": 3,
+          "sinDefinir": true,
+          "programa": null
+        },
+        {
+          "id": "t-entornos",
+          "codigo": "K431",
+          "nombre": "Taller de Entornos Complejos",
+          "cat": "taller",
+          "anio": 4,
+          "req": [
+            "f-etnografia",
+            "f-psicologia",
+            "f-administracion",
+            "t-sustentabilidad",
+            "t-codiseno",
+            "o-informacion",
+            "o-tecnologia",
+            "o-narrativas",
+            "f-ciencias",
+            "f-historia",
+            "f-filosofia"
+          ],
+          "programa": null
+        },
+        {
+          "id": "t-sistemas",
+          "codigo": null,
+          "nombre": "Taller de Sistemas Inteligentes",
+          "cat": "taller",
+          "anio": 4,
+          "req": [
+            "f-etnografia",
+            "f-psicologia",
+            "f-administracion",
+            "t-sustentabilidad",
+            "t-codiseno",
+            "o-informacion",
+            "o-tecnologia",
+            "o-narrativas",
+            "f-ciencias",
+            "f-historia",
+            "f-filosofia"
+          ],
+          "programa": null
+        },
+        {
+          "id": "o-graduacion",
+          "codigo": "K488",
+          "nombre": "Taller Trabajo de Graduación",
+          "corto": "Trabajo de Graduación",
+          "cat": "obligatoria",
+          "anio": 4,
+          "req": [
+            "o-informacion",
+            "o-tecnologia",
+            "o-narrativas",
+            "f-ciencias",
+            "f-historia",
+            "f-filosofia",
+            "t-mercado",
+            "t-prospectiva",
+            "o-diagnostico",
+            "o-entrepreneurship",
+            "f-escritura"
+          ],
+          "programa": null,
+          "ultimo": true
+        },
+        {
+          "id": "o-tendencias",
+          "codigo": "K343",
+          "nombre": "Estudios de Tendencias",
+          "cat": "obligatoria",
+          "anio": 4,
+          "req": [
+            "f-etnografia",
+            "f-psicologia",
+            "f-administracion",
+            "t-sustentabilidad",
+            "t-codiseno",
+            "o-informacion",
+            "o-tecnologia",
+            "o-narrativas",
+            "f-ciencias",
+            "f-historia",
+            "f-filosofia"
+          ],
+          "programa": null
+        },
+        {
+          "id": "p-transversal-c",
+          "codigo": null,
+          "nombre": "Taller Transversal C",
+          "cat": "optativa",
+          "anio": 4,
+          "sinDefinir": true,
+          "programa": null
+        },
+        {
+          "id": "p-optativa-3",
+          "codigo": null,
+          "nombre": "Optativa III",
+          "cat": "optativa",
+          "anio": 4,
+          "sinDefinir": true,
+          "programa": null
+        },
+        {
+          "id": "f-arte",
+          "codigo": null,
+          "nombre": "Electiva de Arte",
+          "cat": "cf",
+          "anio": 4,
+          "sinDefinir": true,
+          "programa": null
+        },
+        {
+          "id": "f-literatura",
+          "codigo": null,
+          "nombre": "Electiva de Literatura",
+          "cat": "cf",
+          "anio": 4,
+          "sinDefinir": true,
+          "programa": null
+        }
+      ],
+      "carga": [
+        8,
+        10,
+        10,
+        8
+      ]
+    }
+  }
+}
