@@ -175,6 +175,20 @@ export default function Vista({ v }) {
           </header>
           <main style={{ flex: "1", width: "100%", maxWidth: "1680px", margin: "0 auto", padding: `0 ${v.L.side} 32px` }}>
             {" "}
+            {v.avisoShow ? (
+              <>
+                {" "}
+                <div role="status" style={{ marginTop: "24px", maxWidth: "760px", display: "flex", alignItems: "flex-start", gap: "8px", borderLeft: "4px solid #E0005A", background: "#FFFFFF", padding: "12px 6px 12px 18px", borderRadius: "0 8px 8px 0", boxShadow: "inset 0 0 0 1px #E2E3DF" }}>
+                  <span style={{ flex: "1", display: "flex", flexDirection: "column", gap: "4px", paddingTop: "2px" }}>
+                    <span style={{ fontWeight: "700", fontSize: "15px" }}>{v.avisoTitulo}</span>
+                    <span style={{ fontSize: "14px", lineHeight: "1.45", color: "#3A3D44" }}>{v.avisoTexto}</span>
+                  </span>
+                  <button className="hv9 fo4" onClick={v.onCerrarAviso} aria-label="Cerrar aviso" style={{ all: "unset", cursor: "pointer", flex: "none", width: "44px", height: "44px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", color: "#1C1E22" }}>×</button>
+                </div>
+                {" "}
+              </>
+            ) : null}
+            {" "}
             {v.vHoy ? (
               <>
                 {" "}
@@ -193,7 +207,7 @@ export default function Vista({ v }) {
                           <span>aprobadas</span>
                         </span>
                       </div>
-                      <button className="hv9 fo4" onClick={v.onEditAprob} style={{ all: "unset", cursor: "pointer", fontSize: "13.5px", fontWeight: "700", color: "#1C1E22", textDecoration: "underline", textUnderlineOffset: "3px", padding: "6px 0", margin: "-4px 0" }}>Editar lo aprobado</button>
+                      <button className="hv10 fo4" onClick={v.onEditAprob} style={{ all: "unset", cursor: "pointer", fontSize: "13.5px", fontWeight: "700", color: "#1C1E22", textDecoration: "underline", textUnderlineOffset: "3px", padding: "6px 0", margin: "-4px 0" }}>Editar lo aprobado</button>
                     </div>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: `${v.L.mainCols}`, gap: "24px", alignItems: "start" }}>
@@ -238,7 +252,7 @@ export default function Vista({ v }) {
                                         {c.tagShow ? (
                                           <span style={{ position: "absolute", top: "-9px", left: "10px", fontSize: "10px", fontWeight: "900", letterSpacing: ".05em", textTransform: "uppercase", padding: "2px 7px", borderRadius: "999px", background: `${c.tagBg}`, color: "#FFFFFF" }}>{c.tag}</span>
                                         ) : null}
-                                        <button className="hv10 fo7" onClick={c.onClick} onFocus={c.onEnter} aria-pressed={c.pressed} aria-label={c.aria} style={{ all: "unset", cursor: "pointer", flex: "1", minWidth: "0", display: "flex", flexDirection: "column", gap: "4px", paddingTop: "1px" }}>
+                                        <button className="hv11 fo7" onClick={c.onClick} onFocus={c.onEnter} aria-pressed={c.pressed} aria-label={c.aria} style={{ all: "unset", cursor: "pointer", flex: "1", minWidth: "0", display: "flex", flexDirection: "column", gap: "4px", paddingTop: "1px" }}>
                                           <span style={{ fontSize: "13.5px", fontWeight: "700", lineHeight: "1.22", color: `${c.fg}`, overflowWrap: "anywhere" }}>{c.nombre}</span>
                                           <span style={{ fontSize: "12px", lineHeight: "1.3", color: `${c.sub}`, overflowWrap: "anywhere" }}>{c.label}</span>
                                           {c.aliasShow ? (
@@ -464,7 +478,7 @@ export default function Vista({ v }) {
                                 {v.debesTitle}
                               </span>
                               {v.debes.map((d, i) => (
-                                <button key={i} className="hv11 fo4" onClick={d.onClick} style={{ all: "unset", cursor: "pointer", display: "flex", justifyContent: "space-between", gap: "10px", fontSize: "14px", lineHeight: "1.35", padding: "3px 0" }}>
+                                <button key={i} className="hv12 fo4" onClick={d.onClick} style={{ all: "unset", cursor: "pointer", display: "flex", justifyContent: "space-between", gap: "10px", fontSize: "14px", lineHeight: "1.35", padding: "3px 0" }}>
                                   <span style={{ minWidth: "0" }}>{d.nombre}</span>
                                   <span style={{ flex: "none", fontSize: "12.5px", color: "#4A4F58" }}>{d.anio}° año</span>
                                 </button>
@@ -490,7 +504,7 @@ export default function Vista({ v }) {
                           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
                             <button className="fo4" onClick={v.det.onToggle} style={{ all: "unset", cursor: "pointer", alignSelf: "flex-start", fontSize: "14px", fontWeight: "700", padding: "11px 16px", borderRadius: "9px", background: `${v.det.btnBg}`, color: `${v.det.btnFg}`, boxShadow: `inset 0 0 0 1.5px ${v.det.btnBd}` }}>{v.det.toggleLbl}</button>
                             {v.det.progShow ? (
-                              <a className="hv12 fo4" href={v.det.progUrl} target="_blank" rel="noopener noreferrer" style={{ display: "flex", gap: "6px", alignItems: "center", fontSize: "14px", fontWeight: "700", color: "#1C1E22", textDecoration: "none", padding: "11px 14px", borderRadius: "9px", boxShadow: "inset 0 0 0 1.5px #C9CBD0" }}>
+                              <a className="hv13 fo4" href={v.det.progUrl} target="_blank" rel="noopener noreferrer" style={{ display: "flex", gap: "6px", alignItems: "center", fontSize: "14px", fontWeight: "700", color: "#1C1E22", textDecoration: "none", padding: "11px 14px", borderRadius: "9px", boxShadow: "inset 0 0 0 1.5px #C9CBD0" }}>
                                 {v.det.progLbl}
                                 <span aria-hidden="true">↗</span>
                                 <span style={{ position: "absolute", width: "1px", height: "1px", overflow: "hidden", clip: "rect(0 0 0 0)" }}>, se abre en otra pestaña</span>
@@ -513,7 +527,7 @@ export default function Vista({ v }) {
                                 <span style={{ fontSize: "12px", fontWeight: "700", letterSpacing: ".07em", textTransform: "uppercase", color: "#4A4F58" }}>Se ofrecieron en el {v.det.op.semLbl}</span>
                               ) : null}
                               {v.det.op.backShow ? (
-                                <button className="hv9 fo4" onClick={v.det.op.onBack} style={{ all: "unset", cursor: "pointer", alignSelf: "flex-start", display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: "700", color: "#1C1E22", padding: "4px 0" }}>
+                                <button className="hv10 fo4" onClick={v.det.op.onBack} style={{ all: "unset", cursor: "pointer", alignSelf: "flex-start", display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: "700", color: "#1C1E22", padding: "4px 0" }}>
                                   <span aria-hidden="true">←</span>
                                   {v.det.op.backLbl}
                                 </button>
@@ -522,7 +536,7 @@ export default function Vista({ v }) {
                                 <div role="tabpanel" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                                   <div role="radiogroup" aria-label="Optativas" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                                     {v.det.op.semRows.map((o, i) => (
-                                      <button key={i} className="hv13 fo10" role="radio" aria-checked={o.on} onClick={o.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "grid", gridTemplateColumns: "18px minmax(0,1fr)", alignItems: "center", columnGap: "12px", minHeight: "48px", padding: "8px 12px", borderRadius: "10px", background: `${o.bg}`, boxShadow: `inset 0 0 0 1.5px ${o.bd}` }}>
+                                      <button key={i} className="hv14 fo10" role="radio" aria-checked={o.on} onClick={o.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "grid", gridTemplateColumns: "18px minmax(0,1fr)", alignItems: "center", columnGap: "12px", minHeight: "48px", padding: "8px 12px", borderRadius: "10px", background: `${o.bg}`, boxShadow: `inset 0 0 0 1.5px ${o.bd}` }}>
                                         <span aria-hidden="true" style={{ width: "18px", height: "18px", boxSizing: "border-box", borderRadius: "50%", background: `${o.dot}`, boxShadow: `inset 0 0 0 2px ${o.dotBd}, inset 0 0 0 5px ${o.dot}` }}></span>
                                         <span style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: "0" }}>
                                           <span style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
@@ -545,7 +559,7 @@ export default function Vista({ v }) {
                                   <span style={{ fontSize: "12.5px", color: "#3A3D44" }}>¿No está acá?</span>
                                   <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                                     {v.det.op.alts.map((t, i) => (
-                                      <button key={i} className="hv14 fo4" onClick={t.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "8px", minHeight: "40px", padding: "0 14px", borderRadius: "9px", background: "#FFFFFF", boxShadow: "inset 0 0 0 1.5px #C9CBD0", fontSize: "13.5px", fontWeight: "700", color: "#1C1E22" }}>
+                                      <button key={i} className="hv15 fo4" onClick={t.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "8px", minHeight: "40px", padding: "0 14px", borderRadius: "9px", background: "#FFFFFF", boxShadow: "inset 0 0 0 1.5px #C9CBD0", fontSize: "13.5px", fontWeight: "700", color: "#1C1E22" }}>
                                         <span aria-hidden="true" style={{ fontSize: "14px", lineHeight: "1", color: "#4A4F58" }}>{t.icon}</span>
                                         {t.label}
                                       </button>
@@ -559,7 +573,7 @@ export default function Vista({ v }) {
                                   <div style={{ maxHeight: "300px", overflowY: "auto", margin: "0 -4px", padding: "0 4px" }}>
                                     <div role="radiogroup" aria-label="Optativas" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                                       {v.det.op.allRows.map((o, i) => (
-                                        <button key={i} className="hv13 fo10" role="radio" aria-checked={o.on} onClick={o.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "grid", gridTemplateColumns: "18px minmax(0,1fr)", alignItems: "center", columnGap: "12px", minHeight: "48px", padding: "8px 12px", borderRadius: "10px", background: `${o.bg}`, boxShadow: `inset 0 0 0 1.5px ${o.bd}` }}>
+                                        <button key={i} className="hv14 fo10" role="radio" aria-checked={o.on} onClick={o.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "grid", gridTemplateColumns: "18px minmax(0,1fr)", alignItems: "center", columnGap: "12px", minHeight: "48px", padding: "8px 12px", borderRadius: "10px", background: `${o.bg}`, boxShadow: `inset 0 0 0 1.5px ${o.bd}` }}>
                                           <span aria-hidden="true" style={{ width: "18px", height: "18px", boxSizing: "border-box", borderRadius: "50%", background: `${o.dot}`, boxShadow: `inset 0 0 0 2px ${o.dotBd}, inset 0 0 0 5px ${o.dot}` }}></span>
                                           <span style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: "0" }}>
                                             <span style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
@@ -591,7 +605,7 @@ export default function Vista({ v }) {
                                 <div role="tabpanel">
                                   <div role="radiogroup" aria-label="Optativas" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                                     {v.det.op.eqRows.map((o, i) => (
-                                      <button key={i} className="hv13 fo10" role="radio" aria-checked={o.on} onClick={o.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "grid", gridTemplateColumns: "18px minmax(0,1fr)", alignItems: "center", columnGap: "12px", minHeight: "48px", padding: "8px 12px", borderRadius: "10px", background: `${o.bg}`, boxShadow: `inset 0 0 0 1.5px ${o.bd}` }}>
+                                      <button key={i} className="hv14 fo10" role="radio" aria-checked={o.on} onClick={o.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "grid", gridTemplateColumns: "18px minmax(0,1fr)", alignItems: "center", columnGap: "12px", minHeight: "48px", padding: "8px 12px", borderRadius: "10px", background: `${o.bg}`, boxShadow: `inset 0 0 0 1.5px ${o.bd}` }}>
                                         <span aria-hidden="true" style={{ width: "18px", height: "18px", boxSizing: "border-box", borderRadius: "50%", background: `${o.dot}`, boxShadow: `inset 0 0 0 2px ${o.dotBd}, inset 0 0 0 5px ${o.dot}` }}></span>
                                         <span style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: "0" }}>
                                           <span style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
@@ -633,7 +647,7 @@ export default function Vista({ v }) {
                               </div>
                             ))}
                             {v.det.reqs.map((q, i) => (
-                              <button key={i} className="hv11 fo4" onClick={q.onClick} style={{ all: "unset", cursor: "pointer", display: "flex", gap: "10px", alignItems: "baseline", fontSize: "14px", lineHeight: "1.35", padding: "2px 0" }}>
+                              <button key={i} className="hv12 fo4" onClick={q.onClick} style={{ all: "unset", cursor: "pointer", display: "flex", gap: "10px", alignItems: "baseline", fontSize: "14px", lineHeight: "1.35", padding: "2px 0" }}>
                                 <span aria-hidden="true" style={{ flex: "none", width: "14px", fontWeight: "900" }}>{q.glyph}</span>
                                 <span style={{ flex: "1" }}>{q.nombre}</span>
                                 <span style={{ fontSize: "12.5px", color: "#4A4F58" }}>{q.lbl}</span>
@@ -650,7 +664,7 @@ export default function Vista({ v }) {
                                 <span style={{ fontSize: "14px", color: "#3A3D44" }}>No es correlativa de otras materias.</span>
                               ) : null}
                               {v.det.habs.map((q, i) => (
-                                <button key={i} className="hv11 fo4" onClick={q.onClick} style={{ all: "unset", cursor: "pointer", display: "flex", gap: "10px", alignItems: "baseline", fontSize: "14px", lineHeight: "1.35", padding: "2px 0" }}>
+                                <button key={i} className="hv12 fo4" onClick={q.onClick} style={{ all: "unset", cursor: "pointer", display: "flex", gap: "10px", alignItems: "baseline", fontSize: "14px", lineHeight: "1.35", padding: "2px 0" }}>
                                   <span aria-hidden="true" style={{ flex: "none", width: "14px", fontWeight: "900", color: "#C2004C" }}>→</span>
                                   <span style={{ flex: "1" }}>{q.nombre}</span>
                                   <span style={{ fontSize: "12.5px", color: "#4A4F58" }}>{q.lbl}</span>
@@ -727,7 +741,7 @@ export default function Vista({ v }) {
                                   <span style={{ fontSize: "11.5px", fontWeight: "900", letterSpacing: ".06em", textTransform: "uppercase", color: `${g.fg}` }}>{g.label}</span>
                                   <div style={{ display: "grid", gridTemplateColumns: `${v.L.pickCols}`, gap: "6px" }}>
                                     {g.opts.map((o, i) => (
-                                      <button key={i} className="hv14 fo4" onClick={o.onClick} aria-pressed={o.on} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", minHeight: "48px", padding: "10px 12px", borderRadius: "9px", background: `${o.bg}`, color: `${o.fg}`, boxShadow: `inset 0 0 0 1.5px ${o.bd}` }}>
+                                      <button key={i} className="hv15 fo4" onClick={o.onClick} aria-pressed={o.on} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px", minHeight: "48px", padding: "10px 12px", borderRadius: "9px", background: `${o.bg}`, color: `${o.fg}`, boxShadow: `inset 0 0 0 1.5px ${o.bd}` }}>
                                         <span style={{ minWidth: "0", display: "flex", flexDirection: "column", gap: "2px" }}>
                                           <span style={{ fontSize: "14.5px", fontWeight: "700", lineHeight: "1.25", overflowWrap: "anywhere" }}>{o.nombre}</span>
                                           <span style={{ fontSize: "12px", color: `${o.meta}` }}>{o.sub}</span>
@@ -767,7 +781,7 @@ export default function Vista({ v }) {
                                 <span style={{ fontSize: "11.5px", fontWeight: "900", letterSpacing: ".06em", textTransform: "uppercase", color: "#3A3D44" }}>{g.label}</span>
                                 <div style={{ display: "grid", gridTemplateColumns: `${v.L.pickCols}`, gap: "6px" }}>
                                   {g.opts.map((o, i) => (
-                                    <button key={i} className="hv14 fo4" onClick={o.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "flex", flexDirection: "column", gap: "2px", minHeight: "48px", padding: "10px 12px", borderRadius: "9px", background: "#FFFFFF", boxShadow: "inset 0 0 0 1.5px #E2E3DF" }}>
+                                    <button key={i} className="hv15 fo4" onClick={o.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "flex", flexDirection: "column", gap: "2px", minHeight: "48px", padding: "10px 12px", borderRadius: "9px", background: "#FFFFFF", boxShadow: "inset 0 0 0 1.5px #E2E3DF" }}>
                                       <span style={{ fontSize: "14.5px", fontWeight: "700", lineHeight: "1.25", overflowWrap: "anywhere" }}>{o.nombre}</span>
                                       <span style={{ fontSize: "12px", color: "#4A4F58" }}>{o.sub}</span>
                                     </button>
@@ -868,7 +882,7 @@ export default function Vista({ v }) {
                           </div>
                         ) : null}
                         {v.manual ? (
-                          <button className="hv9 fo4" onClick={v.onResetPlan} style={{ all: "unset", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: "700", color: "#1C1E22", textDecoration: "underline", textUnderlineOffset: "3px", padding: "4px 0" }}>
+                          <button className="hv10 fo4" onClick={v.onResetPlan} style={{ all: "unset", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px", fontSize: "14px", fontWeight: "700", color: "#1C1E22", textDecoration: "underline", textUnderlineOffset: "3px", padding: "4px 0" }}>
                             <span aria-hidden="true" style={{ textDecoration: "none" }}>↺</span>
                             Reordenar automáticamente
                           </button>
@@ -898,7 +912,7 @@ export default function Vista({ v }) {
                                 <span style={{ fontSize: "14px", fontWeight: "700", lineHeight: "1.25" }}>{it.nombre}</span>
                               </button>
                               <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                                <button className="hv15 fo5" onClick={it.onNext} aria-label={it.nextLbl} style={{ all: "unset", cursor: "pointer", width: `${v.L.arrW}`, height: `${v.L.arrH}`, borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "900" }}>→</button>
+                                <button className="hv9 fo5" onClick={it.onNext} aria-label={it.nextLbl} style={{ all: "unset", cursor: "pointer", width: `${v.L.arrW}`, height: `${v.L.arrH}`, borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "900" }}>→</button>
                               </div>
                             </div>
                           ))}
@@ -938,8 +952,8 @@ export default function Vista({ v }) {
                               ) : null}
                               {it.drag ? (
                                 <div style={{ display: "flex", justifyContent: "flex-end", gap: "2px" }}>
-                                  <button className="hv15 fo5" onClick={it.onPrev} disabled={it.noPrev} aria-label={it.prevLbl} style={{ all: "unset", cursor: "pointer", width: `${v.L.arrW}`, height: `${v.L.arrH}`, borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "900", opacity: `${it.prevOp}` }}>←</button>
-                                  <button className="hv15 fo5" onClick={it.onNext} aria-label={it.nextLbl} style={{ all: "unset", cursor: "pointer", width: `${v.L.arrW}`, height: `${v.L.arrH}`, borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "900" }}>→</button>
+                                  <button className="hv9 fo5" onClick={it.onPrev} disabled={it.noPrev} aria-label={it.prevLbl} style={{ all: "unset", cursor: "pointer", width: `${v.L.arrW}`, height: `${v.L.arrH}`, borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "900", opacity: `${it.prevOp}` }}>←</button>
+                                  <button className="hv9 fo5" onClick={it.onNext} aria-label={it.nextLbl} style={{ all: "unset", cursor: "pointer", width: `${v.L.arrW}`, height: `${v.L.arrH}`, borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "900" }}>→</button>
                                 </div>
                               ) : null}
                             </div>
@@ -1049,7 +1063,7 @@ export default function Vista({ v }) {
                               <button className="hv17 fo15" onClick={o.onRemove} aria-label={o.rmLbl} style={{ all: "unset", cursor: "pointer", width: "28px", height: "28px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "15px" }}>×</button>
                             </span>
                           ))}
-                          <button className="hv15 fo4" onClick={v.onRecOpen} aria-expanded={v.recOpen} style={{ all: "unset", cursor: "pointer", fontSize: "13.5px", fontWeight: "700", padding: "9px 14px", borderRadius: "999px", boxShadow: "inset 0 0 0 1.5px #1C1E22" }}>+ Sumar materia</button>
+                          <button className="hv9 fo4" onClick={v.onRecOpen} aria-expanded={v.recOpen} style={{ all: "unset", cursor: "pointer", fontSize: "13.5px", fontWeight: "700", padding: "9px 14px", borderRadius: "999px", boxShadow: "inset 0 0 0 1.5px #1C1E22" }}>+ Sumar materia</button>
                         </div>
                         {v.recOpen ? (
                           <div style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "14px", borderRadius: "12px", background: "#FAFAF8", boxShadow: "inset 0 0 0 1px #E2E3DF" }}>
@@ -1058,7 +1072,7 @@ export default function Vista({ v }) {
                                 <span style={{ fontSize: "11.5px", fontWeight: "900", letterSpacing: ".06em", textTransform: "uppercase", color: "#3A3D44" }}>{g.label}</span>
                                 <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
                                   {g.opts.map((o, i) => (
-                                    <button key={i} className="hv14 fo4" onClick={o.onClick} disabled={o.dis} style={{ all: "unset", cursor: "pointer", fontSize: "13.5px", fontWeight: "500", padding: "8px 12px", borderRadius: "999px", background: "#FFFFFF", boxShadow: "inset 0 0 0 1.5px #E2E3DF", opacity: `${o.op}` }}>{o.nombre}</button>
+                                    <button key={i} className="hv15 fo4" onClick={o.onClick} disabled={o.dis} style={{ all: "unset", cursor: "pointer", fontSize: "13.5px", fontWeight: "500", padding: "8px 12px", borderRadius: "999px", background: "#FFFFFF", boxShadow: "inset 0 0 0 1.5px #E2E3DF", opacity: `${o.op}` }}>{o.nombre}</button>
                                   ))}
                                 </div>
                               </div>
@@ -1119,7 +1133,7 @@ export default function Vista({ v }) {
                       <span style={{ fontSize: "12px", fontWeight: "700", letterSpacing: ".07em", textTransform: "uppercase", color: "#4A4F58" }}>Se ofrecieron en el {v.det.op.semLbl}</span>
                     ) : null}
                     {v.det.op.backShow ? (
-                      <button className="hv9 fo4" onClick={v.det.op.onBack} style={{ all: "unset", cursor: "pointer", alignSelf: "flex-start", display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: "700", color: "#1C1E22", padding: "4px 0" }}>
+                      <button className="hv10 fo4" onClick={v.det.op.onBack} style={{ all: "unset", cursor: "pointer", alignSelf: "flex-start", display: "flex", alignItems: "center", gap: "6px", fontSize: "13px", fontWeight: "700", color: "#1C1E22", padding: "4px 0" }}>
                         <span aria-hidden="true">←</span>
                         {v.det.op.backLbl}
                       </button>
@@ -1128,7 +1142,7 @@ export default function Vista({ v }) {
                       <div role="tabpanel" style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                         <div role="radiogroup" aria-label="Optativas" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                           {v.det.op.semRows.map((o, i) => (
-                            <button key={i} className="hv13 fo10" role="radio" aria-checked={o.on} onClick={o.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "grid", gridTemplateColumns: "18px minmax(0,1fr)", alignItems: "center", columnGap: "12px", minHeight: "48px", padding: "8px 12px", borderRadius: "10px", background: `${o.bg}`, boxShadow: `inset 0 0 0 1.5px ${o.bd}` }}>
+                            <button key={i} className="hv14 fo10" role="radio" aria-checked={o.on} onClick={o.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "grid", gridTemplateColumns: "18px minmax(0,1fr)", alignItems: "center", columnGap: "12px", minHeight: "48px", padding: "8px 12px", borderRadius: "10px", background: `${o.bg}`, boxShadow: `inset 0 0 0 1.5px ${o.bd}` }}>
                               <span aria-hidden="true" style={{ width: "18px", height: "18px", boxSizing: "border-box", borderRadius: "50%", background: `${o.dot}`, boxShadow: `inset 0 0 0 2px ${o.dotBd}, inset 0 0 0 5px ${o.dot}` }}></span>
                               <span style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: "0" }}>
                                 <span style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
@@ -1151,7 +1165,7 @@ export default function Vista({ v }) {
                         <span style={{ fontSize: "12.5px", color: "#3A3D44" }}>¿No está acá?</span>
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                           {v.det.op.alts.map((t, i) => (
-                            <button key={i} className="hv14 fo4" onClick={t.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "8px", minHeight: "40px", padding: "0 14px", borderRadius: "9px", background: "#FFFFFF", boxShadow: "inset 0 0 0 1.5px #C9CBD0", fontSize: "13.5px", fontWeight: "700", color: "#1C1E22" }}>
+                            <button key={i} className="hv15 fo4" onClick={t.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "8px", minHeight: "40px", padding: "0 14px", borderRadius: "9px", background: "#FFFFFF", boxShadow: "inset 0 0 0 1.5px #C9CBD0", fontSize: "13.5px", fontWeight: "700", color: "#1C1E22" }}>
                               <span aria-hidden="true" style={{ fontSize: "14px", lineHeight: "1", color: "#4A4F58" }}>{t.icon}</span>
                               {t.label}
                             </button>
@@ -1165,7 +1179,7 @@ export default function Vista({ v }) {
                         <div style={{ maxHeight: "300px", overflowY: "auto", margin: "0 -4px", padding: "0 4px" }}>
                           <div role="radiogroup" aria-label="Optativas" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                             {v.det.op.allRows.map((o, i) => (
-                              <button key={i} className="hv13 fo10" role="radio" aria-checked={o.on} onClick={o.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "grid", gridTemplateColumns: "18px minmax(0,1fr)", alignItems: "center", columnGap: "12px", minHeight: "48px", padding: "8px 12px", borderRadius: "10px", background: `${o.bg}`, boxShadow: `inset 0 0 0 1.5px ${o.bd}` }}>
+                              <button key={i} className="hv14 fo10" role="radio" aria-checked={o.on} onClick={o.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "grid", gridTemplateColumns: "18px minmax(0,1fr)", alignItems: "center", columnGap: "12px", minHeight: "48px", padding: "8px 12px", borderRadius: "10px", background: `${o.bg}`, boxShadow: `inset 0 0 0 1.5px ${o.bd}` }}>
                                 <span aria-hidden="true" style={{ width: "18px", height: "18px", boxSizing: "border-box", borderRadius: "50%", background: `${o.dot}`, boxShadow: `inset 0 0 0 2px ${o.dotBd}, inset 0 0 0 5px ${o.dot}` }}></span>
                                 <span style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: "0" }}>
                                   <span style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
@@ -1197,7 +1211,7 @@ export default function Vista({ v }) {
                       <div role="tabpanel">
                         <div role="radiogroup" aria-label="Optativas" style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
                           {v.det.op.eqRows.map((o, i) => (
-                            <button key={i} className="hv13 fo10" role="radio" aria-checked={o.on} onClick={o.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "grid", gridTemplateColumns: "18px minmax(0,1fr)", alignItems: "center", columnGap: "12px", minHeight: "48px", padding: "8px 12px", borderRadius: "10px", background: `${o.bg}`, boxShadow: `inset 0 0 0 1.5px ${o.bd}` }}>
+                            <button key={i} className="hv14 fo10" role="radio" aria-checked={o.on} onClick={o.onClick} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "grid", gridTemplateColumns: "18px minmax(0,1fr)", alignItems: "center", columnGap: "12px", minHeight: "48px", padding: "8px 12px", borderRadius: "10px", background: `${o.bg}`, boxShadow: `inset 0 0 0 1.5px ${o.bd}` }}>
                               <span aria-hidden="true" style={{ width: "18px", height: "18px", boxSizing: "border-box", borderRadius: "50%", background: `${o.dot}`, boxShadow: `inset 0 0 0 2px ${o.dotBd}, inset 0 0 0 5px ${o.dot}` }}></span>
                               <span style={{ display: "flex", flexDirection: "column", gap: "2px", minWidth: "0" }}>
                                 <span style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
@@ -1220,7 +1234,7 @@ export default function Vista({ v }) {
                 <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "center" }}>
                   <button className="fo4" onClick={v.det.onToggle} style={{ all: "unset", cursor: "pointer", alignSelf: "flex-start", fontSize: "15px", fontWeight: "700", padding: "13px 18px", borderRadius: "10px", background: `${v.det.btnBg}`, color: `${v.det.btnFg}`, boxShadow: `inset 0 0 0 1.5px ${v.det.btnBd}` }}>{v.det.toggleLbl}</button>
                   {v.det.progShow ? (
-                    <a className="hv12 fo4" href={v.det.progUrl} target="_blank" rel="noopener noreferrer" style={{ display: "flex", gap: "6px", alignItems: "center", fontSize: "14px", fontWeight: "700", color: "#1C1E22", textDecoration: "none", padding: "11px 14px", borderRadius: "9px", boxShadow: "inset 0 0 0 1.5px #C9CBD0" }}>
+                    <a className="hv13 fo4" href={v.det.progUrl} target="_blank" rel="noopener noreferrer" style={{ display: "flex", gap: "6px", alignItems: "center", fontSize: "14px", fontWeight: "700", color: "#1C1E22", textDecoration: "none", padding: "11px 14px", borderRadius: "9px", boxShadow: "inset 0 0 0 1.5px #C9CBD0" }}>
                       {v.det.progLbl}
                       <span aria-hidden="true">↗</span>
                       <span style={{ position: "absolute", width: "1px", height: "1px", overflow: "hidden", clip: "rect(0 0 0 0)" }}>, se abre en otra pestaña</span>
@@ -1325,7 +1339,7 @@ export default function Vista({ v }) {
                         <input value={v.nombreExp === undefined ? "" : v.nombreExp} onChange={v.onNombreExp} maxLength="80" autoComplete="name" placeholder="Nombre y apellido" style={{ font: "inherit", fontSize: "20px", fontWeight: "700", padding: "12px 14px", border: "1.5px solid #C9CBD0", borderRadius: "10px", color: "#1C1E22" }} />
                       </label>
                       <button className="hv7 fo4" onClick={v.onImprimir} style={{ all: "unset", cursor: "pointer", fontSize: "15px", fontWeight: "700", padding: "15px 20px", borderRadius: "10px", background: "#E0005A", color: "#FFFFFF" }}>Descargar PDF</button>
-                      <button className="hv14 fo4" onClick={v.onDescargarJson} style={{ all: "unset", cursor: "pointer", fontSize: "15px", fontWeight: "700", padding: "15px 18px", borderRadius: "10px", boxShadow: "inset 0 0 0 1.5px #C9CBD0" }}>Archivo para retomar</button>
+                      <button className="hv15 fo4" onClick={v.onDescargarJson} style={{ all: "unset", cursor: "pointer", fontSize: "15px", fontWeight: "700", padding: "15px 18px", borderRadius: "10px", boxShadow: "inset 0 0 0 1.5px #C9CBD0" }}>Archivo para retomar</button>
                     </div>
                     <div style={{ borderRadius: "10px", background: "#E8E8E4", padding: `${v.L.posterPad}`, overflow: "hidden" }}>
                       {" "}

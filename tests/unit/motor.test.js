@@ -201,6 +201,17 @@ describe('project y materialize', () => {
     expect(pr.sems[1]).toMatchObject({ cal: '2027-2', ids: ['o-imagen'] });
     expect(pr.unplaced.length).toBeGreaterThan(0);
   });
+  it('con plan manual, lo que quedó en un semestre pasado o lejano no se pierde: va a "Sin semestre"', () => {
+    const M = motor(estado({ planId: '2027', anio: 1, plan: { 'o-imagen': '2026-2', 'f-economia': '2099-1', 'f-escritura': '2027-2' }, semCount: 2 })), c = M.build();
+    const pr = M.project(c);
+    expect(pr.sems.map(x => x.cal)).toEqual(['2027-1', '2027-2']);
+    expect(pr.unplaced).toEqual(expect.arrayContaining(['o-imagen', 'f-economia']));
+    expect(pr.sems[1].ids).toEqual(['f-escritura']);
+  });
+  it('un intercambio que ya pasó no reconoce nada', () => {
+    const M = motor(estado({ planId: '2023', anio: 4, intSem: '2026-2', intRec: { 'opt-3': true } })), c = M.build();
+    expect(M.recIds(c)).toEqual([]);
+  });
   it('materialize congela la proyección automática', () => {
     const M = motor(estado({ planId: '2027', anio: 1 })), c = M.build(), mat = M.materialize(c);
     expect(mat.semCount).toBe(8);

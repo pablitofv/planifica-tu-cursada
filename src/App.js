@@ -12,7 +12,7 @@ export default class App extends Logica {
   static ORD = ORD;
   static SHOW = SHOW;
 
-  fresh() { return { screen: 'inicio', step: 0, planId: null, anio: null, aprob: {}, insc: null, plan: null, semCount: 0, intSem: null, intRec: {}, notas: {}, view: 'hoy', sel: null, hover: null, mYear: 1, modal: null, error: null, nombreExp: '', pick: null, recOpen: false, drag: null, dropOver: null, moveId: null }; }
+  fresh() { return { screen: 'inicio', step: 0, planId: null, anio: null, aprob: {}, insc: null, plan: null, semCount: 0, intSem: null, intRec: {}, notas: {}, view: 'hoy', sel: null, hover: null, mYear: 1, modal: null, error: null, aviso: null, nombreExp: '', pick: null, recOpen: false, drag: null, dropOver: null, moveId: null }; }
   state = Object.assign({ ready: false, loadErr: false, w: window.innerWidth, lines: [] }, this.fresh());
   motor = new Motor({ datos: () => this.D, estado: () => this.state });
   fileRef = React.createRef();
@@ -119,7 +119,7 @@ export default class App extends Logica {
   editInsc(c, fn) { const cur = this.motor.inscIds(c).slice(); this.setState({ insc: fn(cur), pick: null }); }
   exportObj() {
     const s = this.state, notas = {}; Object.keys(s.notas).forEach(k => { if (s.notas[k]) notas[k] = s.notas[k]; });
-    return { plan: s.planId, anio: s.anio, nombre: s.nombreExp || undefined, aprobadas: this.motor.keys(s.aprob), inscripcion: s.insc, semestres: s.plan, cantidadSemestres: s.semCount || undefined, intercambio: s.intSem ? { semestre: s.intSem, reconocer: this.motor.keys(s.intRec) } : null, notas };
+    return { version: 2, plan: s.planId, anio: s.anio, inscripcionSemestre: this.motor.semAt(0).cal, nombre: s.nombreExp || undefined, aprobadas: this.motor.keys(s.aprob), inscripcion: s.insc, semestres: s.plan, cantidadSemestres: s.semCount || undefined, intercambio: s.intSem ? { semestre: s.intSem, reconocer: this.motor.keys(s.intRec) } : null, notas };
   }
   download() {
     const blob = new Blob([JSON.stringify(this.exportObj(), null, 2)], { type: 'application/json' });
@@ -133,7 +133,7 @@ export default class App extends Logica {
     if (f.size > 100 * 1024) return fail('El archivo es demasiado grande. ' + ARCHIVO_INVALIDO);
     const rd = new FileReader();
     rd.onerror = () => fail(ARCHIVO_INVALIDO);
-    rd.onload = () => { const r = leerProgreso(String(rd.result), this.motor.P3()); if (r.error) return fail(r.error); this.setState(Object.assign(this.fresh(), r.estado)); };
+    rd.onload = () => { const r = leerProgreso(String(rd.result), this.motor.P3(), this.motor); if (r.error) return fail(r.error); this.setState(Object.assign(this.fresh(), r.estado)); };
     rd.readAsText(f);
   }
 
@@ -175,6 +175,7 @@ export default class App extends Logica {
     const base = {
       L, mob, desk: !mob, fileRef: this.fileRef, onFile: e => this.loadFile(e), stop: e => e.stopPropagation(),
       isOnb: s.screen === 'inicio', isCarga: s.screen === 'carga' && !!s.planId && s.ready, isApp: s.screen === 'app' && !!s.planId && s.ready,
+      avisoShow: !!s.aviso, avisoTitulo: s.aviso ? s.aviso.titulo : '', avisoTexto: s.aviso ? s.aviso.texto : '', onCerrarAviso: () => this.setState({ aviso: null }),
       step0: s.step === 0, stepN: s.step > 0, step1: s.step === 1, step2: s.step === 2, errorShow: !!s.error || !!s.loadErr, errorTitle: s.loadErr ? 'No pudimos cargar el plan de estudios' : 'No pudimos abrir ese archivo', error: s.loadErr ? 'Revisá tu conexión y recargá la página.' : (s.error || ''),
       onRadioKeys: e => { const k = e.key, d = k === 'ArrowRight' || k === 'ArrowDown' ? 1 : k === 'ArrowLeft' || k === 'ArrowUp' ? -1 : 0; if (!d) return; e.preventDefault(); const r = [...e.currentTarget.querySelectorAll('[role=radio]')], i = Math.max(0, r.indexOf(document.activeElement)), n = r[(i + d + r.length) % r.length]; n.focus(); n.click(); },
       stepTitle: s.step === 1 ? '¿Qué plan cursás?' : '¿Qué año estás cursando?', stepAria: 'Paso ' + s.step + ' de 2', step2Bar: s.step === 2 ? '#FF0064' : '#3A3C43',

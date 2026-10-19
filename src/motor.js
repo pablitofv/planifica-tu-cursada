@@ -111,7 +111,7 @@ export class Motor {
     const ey = Math.min(4, rest.length ? Math.max(year, Math.min(...rest.map(m => m.anio))) : year), N = c.P.carga ? c.P.carga[ey - 1] : c.mats.filter(m => m.anio === ey).length;
     return { ey, cap: Math.min(c.P.reglas.maxMaterias, Math.max(c.P.carga ? 1 : 4, half === 1 ? Math.ceil(N / 2) : Math.floor(N / 2))) };
   }
-  recIds(c) { const s = this.estado; return s.intSem ? this.keys(s.intRec).filter(id => c.by[id] && !c.ap.has(id)) : []; }
+  recIds(c) { const s = this.estado; return s.intSem && this.calK(s.intSem) >= 0 ? this.keys(s.intRec).filter(id => c.by[id] && !c.ap.has(id)) : []; }
   suggestion(c) { return this.fill(c, new Set(c.ap), 0, new Set(this.recIds(c))); }
   inscIds(c) {
     const s = this.estado; if (this.semAt(0).cal === s.intSem) return [];
@@ -235,7 +235,7 @@ export class Motor {
     const s = this.estado, rec = this.recIds(c);
     if (!s.plan) { const sems = this.autoProject(c, s.intSem, rec); for (let k = sems.length; k < s.semCount; k++) sems.push(Object.assign({ ids: [] }, this.semAt(k))); return { sems, unplaced: [] }; }
     const insc = this.inscIds(c), used = new Set([...insc, ...rec]), plan = {};
-    Object.keys(s.plan).forEach(id => { if (c.by[id] && !c.ap.has(id) && !used.has(id)) plan[id] = s.plan[id]; });
+    Object.keys(s.plan).forEach(id => { const k = this.calK(s.plan[id]); if (c.by[id] && !c.ap.has(id) && !used.has(id) && k > 0 && k <= 16) plan[id] = s.plan[id]; });
     const maxK = Math.max(0, s.semCount - 1, ...Object.values(plan).map(x => this.calK(x)), s.intSem ? this.calK(s.intSem) : 0);
     const sems = [];
     for (let k = 0; k <= maxK; k++) { const info = this.semAt(k);

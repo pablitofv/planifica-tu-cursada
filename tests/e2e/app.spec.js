@@ -148,6 +148,18 @@ test('archivo para retomar: descarga y vuelve a abrir', async ({ page }) => {
   expect(await page.locator('img[src=x]').count()).toBe(0);
 });
 
+test('un archivo de un semestre que ya pasó avisa qué cambió', async ({ page }) => {
+  await abrir(page);
+  const archivo = { version: 2, plan: '2023', anio: 3, inscripcionSemestre: '2026-2', aprobadas: ['k030', 'k031'], inscripcion: ['k230'], semestres: { k231: '2027-1', c020: '2027-2' }, cantidadSemestres: 3 };
+  await page.locator('input[type=file]').setInputFiles({ name: 'mi.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(archivo)) });
+  const aviso = page.getByRole('status').filter({ hasText: 'Tu archivo es del 2° semestre 2026' });
+  await expect(aviso).toContainText('Lo que habías planeado para el 1° semestre 2027 quedó como tu inscripción.');
+  await page.getByRole('button', { name: /Inscripción/ }).first().click();
+  await expect(page.getByRole('button', { name: /Taller: Taller de Sustentabilidad\. Cambiar/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Cerrar aviso' }).click();
+  await expect(aviso).toHaveCount(0);
+});
+
 test('un archivo que no es del planificador muestra el error', async ({ page }) => {
   await abrir(page);
   await page.locator('input[type=file]').setInputFiles({ name: 'x.json', mimeType: 'application/json', buffer: Buffer.from('{"plan":"2027","aprobadas":["k030"]}') });
