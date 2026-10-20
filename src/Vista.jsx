@@ -444,7 +444,9 @@ export default function Vista({ v }) {
                             ))}
                           </ul>
                           <div role="status" style={{ display: "flex", gap: "10px", alignItems: "center", borderTop: "1px solid #2E3036", paddingTop: "14px" }}>
-                            <span aria-hidden="true" style={{ flex: "none", width: "26px", height: "26px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "900", background: `${v.trk.iconBg}`, color: "#16171A" }}>{v.trk.icon}</span>
+                            <span aria-hidden="true" style={{ flex: "none", width: "26px", height: "26px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "900", background: `${v.trk.iconBg}`, color: "#16171A" }}>{v.trk.eye ? (
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16171A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
+                              ) : v.trk.icon}</span>
                             <span style={{ fontSize: "14.5px", fontWeight: "700", lineHeight: "1.35" }}>{v.trk.status}</span>
                           </div>
                           <button className="hv7 fo1" onClick={v.goInsc} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", background: "#E0005A", color: "#FFFFFF", padding: "18px 22px", borderRadius: "14px" }}>
@@ -703,9 +705,12 @@ export default function Vista({ v }) {
                         <span style={{ fontSize: "15px", color: "#C9CBD0" }}>Lo cambiás en Próximos semestres.</span>
                       </div>
                     ) : null}
+                    {v.inscCuentaShow ? (
+                      <p role="status" style={{ margin: "0", fontSize: "15px", lineHeight: "1.4", color: "#3A3D44" }}><strong style={{ fontWeight: "900", color: "#1C1E22" }}>{v.inscCuenta.n}</strong>{v.inscCuenta.resto}</p>
+                    ) : null}
                     <ol style={{ listStyle: "none", margin: "0", padding: "0", display: "flex", flexDirection: "column", gap: "10px" }}>
                       {v.rows.map((r, i) => (
-                        <li key={i} style={{ display: "flex", flexDirection: "column", background: "#FFFFFF", borderRadius: "14px", boxShadow: `${r.sh}`, overflow: "hidden" }}>
+                        <li key={i} style={{ display: "flex", flexDirection: "column", background: `${r.bg}`, borderRadius: "14px", boxShadow: `${r.sh}`, outline: `${r.ol}`, outlineOffset: "-1.5px", overflow: "hidden" }}>
                           <div style={{ display: "flex", gap: "8px", alignItems: "center", padding: "14px 10px 14px 20px" }}>
                             <button className="fo11" onClick={r.onOpen} aria-expanded={r.open} aria-label={r.openLbl} style={{ all: "unset", cursor: "pointer", flex: "1", minWidth: "0", display: "flex", flexDirection: "column", gap: "6px", padding: "2px 0" }}>
                               <span style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
@@ -812,7 +817,9 @@ export default function Vista({ v }) {
                       <ul style={{ listStyle: "none", margin: "0", padding: "0", display: "flex", flexDirection: "column" }}>
                         {v.chk.items.map((it, i) => (
                           <li key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start", padding: "11px 0", borderTop: "1px solid #2E3036" }}>
-                            <span aria-hidden="true" style={{ flex: "none", width: "22px", height: "22px", marginTop: "1px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "900", background: `${it.bg}`, color: "#16171A" }}>{it.icon}</span>
+                            <span aria-hidden="true" style={{ flex: "none", width: "22px", height: "22px", marginTop: "1px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "900", background: `${it.bg}`, color: "#16171A" }}>{it.eye ? (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16171A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
+                            ) : it.icon}</span>
                             <span style={{ minWidth: "0", display: "flex", flexDirection: "column", gap: "2px" }}>
                               <span style={{ fontSize: "15px", fontWeight: "700", lineHeight: "1.3" }}>{it.title}</span>
                               {it.subShow ? (
