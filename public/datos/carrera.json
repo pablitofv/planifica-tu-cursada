@@ -102,7 +102,7 @@
   "reglas": {
     "maxMaterias": 5,
     "maxTalleres": 1,
-    "maxOptativas": 1,
+    "maxOptativas": 1, "maxTransversales": 1,
     "intercambio": [
       [
         3,
@@ -1012,7 +1012,7 @@
           "id": "p-transversal-a",
           "codigo": null,
           "nombre": "Taller Transversal A",
-          "cat": "optativa",
+          "cat": "transversal",
           "anio": 2,
           "sinDefinir": true,
           "programa": null
@@ -1160,7 +1160,7 @@
           "id": "p-transversal-b",
           "codigo": null,
           "nombre": "Taller Transversal B",
-          "cat": "optativa",
+          "cat": "transversal",
           "anio": 3,
           "sinDefinir": true,
           "programa": null
@@ -1282,7 +1282,7 @@
           "id": "p-transversal-c",
           "codigo": null,
           "nombre": "Taller Transversal C",
-          "cat": "optativa",
+          "cat": "transversal",
           "anio": 4,
           "sinDefinir": true,
           "programa": null

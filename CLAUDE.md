@@ -32,9 +32,10 @@ Sitio estático con Vite + React 18 (desde la v9). Lo publica GitHub Actions en 
 - **Trabajo de Graduación**: la proyección lo pone al final. Si el estudiante lo mueve, solo una nota suave: "Te sugerimos cursarla en tu último semestre."
 - Prioridad: cursar primero las materias de los años que corresponden (no las que habilitan más correlativas).
 - Optativas ya aprobadas: solo se ofrecen las de semestres **ya terminados**. Primero el semestre en que le tocaba; después "Todas", "De otra carrera" o "Por equivalencia".
+- **Talleres transversales** (Plan 2027, A, B y C, categoría `transversal`): obligatorios los tres, en cualquier orden y en cualquier año de 2° a 4°. No ocupan el lugar del taller, pero cuentan como materia en la carga. Uno por semestre (`reglas.maxTransversales`): la propuesta pone uno por año y, si hay dos, el chequeo avisa sin prohibir. Nunca son "Debés" ni "Adelantás". En Hoy tienen fila propia y no suman en el total de cada año.
 - Pensamiento Proyectual: en 2027 es **Taller de Pensamiento Proyectual** (categoría taller); en 2023, Ciclo de Fundamentos.
 - Equivalencias en la práctica (Plan 2023): Portafolio → se dicta como Sistemas Inteligentes; Entrepreneurship y Sistema Industrial → Modelos de Negocio.
-- Resultado de la última simulación (1.000 casos, `tests/unit/simulacion.test.js`): 0 materias sin ubicar, 0 correlativas rotas, 0 semestres con 2 talleres o más de 5 materias, 0 casos con Graduación fuera del último semestre, y la propuesta nunca da el chequeo en rojo ni avisa que adelanta materias.
+- Resultado de la última simulación (1.000 casos, `tests/unit/simulacion.test.js`): 0 materias sin ubicar, 0 correlativas rotas, 0 semestres con 2 talleres o más de 5 materias, 0 casos con Graduación fuera del último semestre, 0 semestres con dos talleres transversales, y la propuesta nunca da el chequeo en rojo ni avisa que adelanta materias.
 
 ## Tono y copy (español rioplatense, voseo)
 - Breve, sin explicar features ni comparar planes.

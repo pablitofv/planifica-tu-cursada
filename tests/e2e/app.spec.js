@@ -183,6 +183,24 @@ test('correlativas "una de dos" y textos de las tarjetas', async ({ page }) => {
   await expect(page.locator('svg path[stroke-dasharray]').first()).toBeAttached();
 });
 
+test('talleres transversales: fila propia en 2027, se pueden cursar en cualquier año', async ({ page }) => {
+  await abrir(page);
+  await abrirArchivo(page, { plan: '2027', anio: 2, aprobadas: ['t-interaccion', 'o-materia', 'o-imagen', 'f-etnografia', 'f-psicologia', 'f-administracion', 'f-pensamiento', 'f-cuantitativos'] });
+  await expect(page.getByRole('heading', { name: '¿Qué vas a cursar?' })).toBeVisible();
+  if (page.viewportSize().width < 760) await page.getByRole('tab', { name: /^3°/ }).click();
+  const fila = page.getByRole('group', { name: 'Talleres transversales' });
+  await expect(fila).toBeVisible();
+  await expect(fila.getByRole('button', { name: /Taller Transversal B. Podés cursarla/ })).toBeVisible();
+  await expect(fila).not.toContainText('Debés');
+});
+
+test('el Plan 2023 no tiene fila de transversales', async ({ page }) => {
+  await abrir(page);
+  await abrirArchivo(page, ADELANTA);
+  await expect(page.getByRole('heading', { name: '¿Qué vas a cursar?' })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Talleres transversales' })).toHaveCount(0);
+});
+
 test('un archivo de un semestre que ya pasó avisa qué cambió', async ({ page }) => {
   await abrir(page);
   const archivo = { version: 2, plan: '2023', anio: 3, inscripcionSemestre: '2026-2', aprobadas: ['k030', 'k031'], inscripcion: ['k230'], semestres: { k231: '2027-1', c020: '2027-2' }, cantidadSemestres: 3 };

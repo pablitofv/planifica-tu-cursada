@@ -1,10 +1,12 @@
 // Motor de reglas del planificador: inscripción sugerida, proyección de semestres y chequeo.
 // No toca el DOM ni React. Lee los datos de la carrera, el estado del estudiante y la fecha de
 // `fuente` en cada llamada, así ve siempre el estado vigente.
-export const CAT = { taller: 'Taller', obligatoria: 'Obligatoria', optativa: 'Optativa', cf: 'Ciclo de Fundamentos' };
-export const LANES = [['taller', 'Talleres'], ['obligatoria', 'Obligatorias'], ['optativa', 'Optativas'], ['cf', 'Ciclo de Fundamentos']];
-export const ORD = { taller: 0, obligatoria: 1, optativa: 2, cf: 3 };
-export const SHOW = { taller: 0, obligatoria: 1, cf: 2, optativa: 3 };
+export const CAT = { taller: 'Taller', transversal: 'Taller transversal', obligatoria: 'Obligatoria', optativa: 'Optativa', cf: 'Ciclo de Fundamentos' };
+export const LANES = [['taller', 'Talleres'], ['transversal', 'Talleres transversales'], ['obligatoria', 'Obligatorias'], ['optativa', 'Optativas'], ['cf', 'Ciclo de Fundamentos']];
+export const ORD = { taller: 0, transversal: 1, obligatoria: 2, optativa: 3, cf: 4 };
+export const SHOW = { taller: 0, transversal: 1, obligatoria: 2, cf: 3, optativa: 4 };
+// Los talleres transversales (Plan 2027) se cursan en cualquier año de 2° a 4°: su año es solo dónde los sugerimos
+export const libre = m => m.cat === 'transversal';
 
 export class Motor {
   // fuente: { datos: () => carrera validada, estado: () => estado del estudiante, hoy?: () => Date }
@@ -73,7 +75,7 @@ export class Motor {
   }
   fill(c, set, k, excl) {
     // Taller y optativa primero: son 1 por semestre, si se postergan estiran la cursada
-    const { year, half } = this.semAt(k), O = { taller: 0, optativa: 1, obligatoria: 2, cf: 3 }, R = c.P.reglas;
+    const { year, half } = this.semAt(k), O = { taller: 0, optativa: 1, transversal: 2, obligatoria: 3, cf: 4 }, R = c.P.reglas;
     const rest = c.pend.filter(m => !set.has(m.id) && !excl.has(m.id));
     if (!rest.length) return [];
     // Si ya no quedan materias de este año, el semestre sigue el modelo del año más bajo pendiente
@@ -83,7 +85,7 @@ export class Motor {
     const cands = rest.filter(m => !m.ultimo && this.evalRule(m, set, c.by).ok).sort((a, b) => a.anio - b.anio || O[a.cat] - O[b.cat] || ((b.cant && b.cant.materias) || 0) - ((a.cant && a.cant.materias) || 0));
     const low = cands.filter(m => m.anio <= ey), pick = [], cnt = {};
     const W = m => 1 + (c.att[m.id] ? 1 : 0), wt = () => pick.reduce((a, m) => a + W(m), 0);
-    const can = (m, L) => !pick.includes(m) && wt() + W(m) <= (L || cap) && !(m.cat === 'taller' && (cnt.taller || 0) >= R.maxTalleres) && !(m.cat === 'optativa' && (cnt.optativa || 0) >= R.maxOptativas);
+    const can = (m, L) => !pick.includes(m) && wt() + W(m) <= (L || cap) && !(m.cat === 'taller' && (cnt.taller || 0) >= R.maxTalleres) && !(m.cat === 'optativa' && (cnt.optativa || 0) >= R.maxOptativas) && !(m.cat === 'transversal' && (cnt.transversal || 0) >= R.maxTransversales);
     const add = m => { pick.push(m); cnt[m.cat] = (cnt[m.cat] || 0) + 1; };
     // El taller es el eje y va uno por semestre: si hay uno disponible, entra siempre
     const tl = cands.find(m => m.cat === 'taller'); if (tl) add(tl);
@@ -97,9 +99,9 @@ export class Motor {
     if (wt() < tot) low.forEach(m => { if (wt() < tot && can(m)) add(m); });
     // Al cerrar el año, lo que quede de ese año entra antes de pasar al siguiente
     if (half === 2) low.forEach(m => { if (can(m)) add(m); });
-    // Taller y optativa son 1 por semestre: si queda el lugar libre, se adelanta uno del año siguiente para no estirar la cursada
+    // Taller, optativa y transversal son 1 por semestre: si queda el lugar libre, se adelanta uno del año siguiente para no estirar la cursada
     const next = cands.filter(m => m.anio <= ey + 1);
-    ['taller', 'optativa'].forEach(cat => { if (!cnt[cat]) { const m = next.find(x => x.cat === cat && can(x)); if (m) add(m); } });
+    ['taller', 'optativa', 'transversal'].forEach(cat => { if (!cnt[cat]) { const m = next.find(x => x.cat === cat && can(x)); if (m) add(m); } });
     next.forEach(m => { if (can(m)) add(m); });
     // El Trabajo de Graduación va solo en el último semestre
     if (tgM && rest.every(m => m.ultimo || pick.includes(m)) && can(tgM)) add(tgM);
@@ -135,7 +137,7 @@ export class Motor {
   balance(c, set0, out) {
     const R = c.P.reglas, real = out.filter(x => !x.isInt), WL = x => x.ids.reduce((a, id) => a + 1 + (c.att[id] ? 1 : 0), 0);
     const valid = () => { const set = new Set(set0); for (const x of out) { if (x.isInt) { x.ids.forEach(id => set.add(id)); continue; } const ms = x.ids.map(id => c.by[id]);
-      if (ms.filter(m => m.cat === 'taller').length > R.maxTalleres || WL(x) > R.maxMaterias) return false;
+      if (ms.filter(m => m.cat === 'taller').length > R.maxTalleres || ms.filter(m => m.cat === 'transversal').length > R.maxTransversales || WL(x) > R.maxMaterias) return false;
       if (ms.some(m => !this.evalRule(m, set, c.by).ok)) return false; ms.forEach(m => { set.add(m.id); if (c.att[m.id]) set.add(c.att[m.id].id); }); } return true; };
     const nOpt = x => x.ids.filter(id => c.by[id].cat === 'optativa').length;
     const swap = (a, b, ia, ib) => { a.ids = a.ids.map(x => x === ia ? ib : x); b.ids = b.ids.map(x => x === ib ? ia : x); };
@@ -187,9 +189,9 @@ export class Motor {
     return out;
   }
   planTail(c, set0, excl, rest, intSem, rec) {
-    const R = c.P.reglas, O = { taller: 0, optativa: 1, obligatoria: 2, cf: 3 }, ids = new Set(rest.map(m => m.id));
-    const T = rest.filter(m => m.cat === 'taller').length, Op = rest.filter(m => m.cat === 'optativa').length;
-    const lb = Math.max(1, T, Math.ceil(rest.length / R.maxMaterias));
+    const R = c.P.reglas, O = { taller: 0, optativa: 1, transversal: 2, obligatoria: 3, cf: 4 }, ids = new Set(rest.map(m => m.id));
+    const T = rest.filter(m => m.cat === 'taller').length, Op = rest.filter(m => m.cat === 'optativa').length, Tr = Math.ceil(rest.filter(m => m.cat === 'transversal').length / Math.max(1, R.maxTransversales));
+    const lb = Math.max(1, T, Tr, Math.ceil(rest.length / R.maxMaterias));
     const intK = intSem ? this.calK(intSem) : -1;
     for (let S = lb; S <= lb + 10; S++) {
       const slots = []; for (let k = 1; slots.length < S; k++) if (k !== intK) slots.push(k);
@@ -204,12 +206,12 @@ export class Motor {
         const cap = this.semNorm(c, k, set, excl).cap, pick = [], cnt = {};
         const avail = rest.filter(m => !placed.has(m.id) && !m.ultimo && this.evalRule(m, set, c.by).ok);
         const W = m => 1 + (c.att[m.id] ? 1 : 0), wt = () => pick.reduce((a, m) => a + W(m), 0), ey = this.semNorm(c, k, set, excl).ey;
-        const can = m => !pick.includes(m) && wt() + W(m) <= cap && !(m.cat === 'taller' && (cnt.taller || 0) >= R.maxTalleres);
+        const can = m => !pick.includes(m) && wt() + W(m) <= cap && !(m.cat === 'taller' && (cnt.taller || 0) >= R.maxTalleres) && !(m.cat === 'transversal' && (cnt.transversal || 0) >= R.maxTransversales);
         const add = m => { pick.push(m); cnt[m.cat] = (cnt[m.cat] || 0) + 1; };
         const byD = (a, b) => d[a.id] - d[b.id] || a.anio - b.anio || O[a.cat] - O[b.cat];
         avail.filter(m => d[m.id] <= i).sort(byD).forEach(m => { if (can(m)) add(m); else ok = false; });
         if (!ok) break;
-        ['taller', 'optativa'].forEach(cat => { const m = avail.filter(x => x.cat === cat && (cat === 'taller' || x.anio <= ey)).sort(byD)[0]; if (m && can(m)) add(m); });
+        ['taller', 'optativa', 'transversal'].forEach(cat => { const m = avail.filter(x => x.cat === cat && (cat === 'taller' || x.anio <= ey)).sort(byD)[0]; if (m && can(m)) add(m); });
         const byY = avail.slice().sort((a, b) => a.anio - b.anio || d[a.id] - d[b.id] || O[a.cat] - O[b.cat]);
         byY.forEach(m => { if (!(m.cat === 'optativa' && (cnt.optativa || 0) >= 1) && can(m)) add(m); });
         byY.forEach(m => { if (can(m)) add(m); });
@@ -254,8 +256,8 @@ export class Motor {
   // extra: la inscripción alarga la cursada respecto de la propuesta.
   chequeo(c) {
     const s = this.estado, R = c.P.reglas, info0 = this.semAt(0), ids = this.inscIds(c), idSet = new Set(ids), rec = this.recIds(c), recSet = new Set(rec), availNow = this.disponibles(c);
-    const ms = ids.map(id => c.by[id]), nT = ms.filter(m => m.cat === 'taller').length, nO = ms.filter(m => m.cat === 'optativa').length;
-    const norm = this.semNorm(c, 0, new Set(c.ap), recSet).cap, addPool = availNow.filter(m => !idSet.has(m.id)), addFit = addPool.filter(m => !(m.cat === 'taller' && nT >= R.maxTalleres) && !(m.cat === 'optativa' && nO >= R.maxOptativas)).length;
+    const ms = ids.map(id => c.by[id]), nT = ms.filter(m => m.cat === 'taller').length, nO = ms.filter(m => m.cat === 'optativa').length, nTr = ms.filter(libre).length;
+    const norm = this.semNorm(c, 0, new Set(c.ap), recSet).cap, addPool = availNow.filter(m => !idSet.has(m.id)), addFit = addPool.filter(m => !(m.cat === 'taller' && nT >= R.maxTalleres) && !(m.cat === 'optativa' && nO >= R.maxOptativas) && !(libre(m) && nTr >= R.maxTransversales)).length;
     const items = [], push = (t, title, sub) => items.push({ t, title, sub });
     const nW = ms.reduce((a, m) => a + 1 + (c.att[m.id] ? 1 : 0), 0);
     const exc = (nT > 1 ? 1 : 0) + (nW > norm ? 1 : 0);
@@ -265,6 +267,7 @@ export class Motor {
     else if (exc >= 2) push('bad', 'Dos excepciones juntas', 'No se permite. Quitá una materia.');
     else {
       if (nT > 1) push('warn', nT + ' talleres', 'Necesitás una excepción de la carrera.');
+      if (nTr > R.maxTransversales) push('warn', nTr + ' talleres transversales', 'Lo recomendado es uno por semestre. Si querés cursar ' + (nTr === 2 ? 'dos' : nTr) + ', consultalo con la carrera.');
       if (nW > norm) push('warn', nW + ' materias', 'La carga recomendada para este semestre es de ' + norm + '. Si querés sumar una más, consultalo con la carrera.');
     }
     const lenOf = ins => this.autoProject(c, s.intSem, this.recIds(c), ins).filter(x => x.ids.length || x.isInt).length;
@@ -277,15 +280,15 @@ export class Motor {
     if (blocked.length) push('bad', blocked.length === 1 ? blocked[0].corto + ', todavía no' : this.pl(blocked.length, 'materia') + ', todavía no', blocked.length === 1 ? this.falta(c.ev[blocked[0].id], c.by) + '.' : 'Te faltan correlativas.');
     else if (ms.length) push('ok', 'Correlativas en regla');
     // Solo se reclama lo adeudado que entraría: hay lugar, o se puede cambiar por algo de un año posterior
-    const owedAvail = availNow.filter(m => m.anio < info0.year), owedOut = owedAvail.filter(m => !idSet.has(m.id) && !(m.cat === 'taller' && nT >= R.maxTalleres) && !(m.cat === 'optativa' && nO >= R.maxOptativas) && (ms.length < norm || ms.some(x => x.anio > m.anio && x.cat !== 'taller' && x.cat !== 'optativa')));
+    const owedAvail = availNow.filter(m => !libre(m) && m.anio < info0.year), owedOut = owedAvail.filter(m => !idSet.has(m.id) && !(m.cat === 'taller' && nT >= R.maxTalleres) && !(m.cat === 'optativa' && nO >= R.maxOptativas) && (ms.length < norm || ms.some(x => x.anio > m.anio && x.cat !== 'taller' && x.cat !== 'optativa')));
     if (owedOut.length) push('warn', owedOut.length === 1 ? 'Falta ' + owedOut[0].nombre : 'Faltan ' + owedOut.length + ' materias que debés', (owedOut.length === 1 ? 'Es de ' + owedOut[0].anio + '° año.' : this.join(owedOut.map(m => m.corto)) + '.') + ' Priorizala' + (owedOut.length > 1 ? 's' : '') + ' para no trabarte después.');
     else if (owedAvail.length && owedAvail.every(m => idSet.has(m.id))) push('ok', 'Incluye lo que debés');
     else if (owedAvail.length) push('ok', 'Prioriza lo que debés', 'Lo que no entra queda para el semestre que viene.');
     // Adelantar se marca si deja afuera algo de tu año (o anterior) que podría ir en su lugar: un taller por otro taller,
     // cualquier otra materia por una que no sea taller (una optativa solo si no se pasa del tope)
-    const enLugarDe = (m, x) => !idSet.has(x.id) && x.anio <= info0.year && (m.cat === 'taller' ? x.cat === 'taller' : x.cat !== 'taller' && !(x.cat === 'optativa' && m.cat !== 'optativa' && nO >= R.maxOptativas));
+    const enLugarDe = (m, x) => !idSet.has(x.id) && !libre(x) && x.anio <= info0.year && (m.cat === 'taller' ? x.cat === 'taller' : x.cat !== 'taller' && !(x.cat === 'optativa' && m.cat !== 'optativa' && nO >= R.maxOptativas));
     // Lo que adelanta la propia propuesta (por ejemplo, una optativa para no estirar la cursada) no se marca
-    const sugSet = new Set(sugI), ahead = ms.filter(m => m.anio > info0.year && !sugSet.has(m.id) && availNow.some(x => enLugarDe(m, x)));
+    const sugSet = new Set(sugI), ahead = ms.filter(m => !libre(m) && m.anio > info0.year && !sugSet.has(m.id) && availNow.some(x => enLugarDe(m, x)));
     if (ahead.length) {
       const pend = availNow.filter(x => ahead.some(m => enLugarDe(m, x))), anios = [...new Set(pend.map(x => x.anio))].sort().map(y => y + '°').join(' y ') + ' año';
       const queda = pend.length === 1 ? 'Te queda ' + pend[0].corto + ', de ' + anios + '. Conviene priorizarla.' : (pend.length <= 3 ? 'Te quedan ' + this.join(pend.map(x => x.corto)) : 'Te quedan ' + pend.length + ' materias') + ' de ' + anios + '. Conviene priorizarlas.';
