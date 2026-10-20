@@ -9,20 +9,19 @@ Herramienta web **orientativa** para estudiantes de la Licenciatura en Diseño d
 No es transaccional. Nunca sugerir que "inscribe" o "guarda". Contacto único: **diseno@udesa.edu.ar**.
 
 ## Estado
-- `index.html`: la app (es un "Design Component": plantilla + clase `Component` que corre sobre `support.js`).
-- `support.js`: runtime que compila la plantilla en el navegador. Carga React 18.3.1 desde unpkg con SRI. Necesita `'unsafe-eval'`.
-- `datos/carrera.json`: planes 2023 y 2027, correlativas, reglas, carga por año, calendario y optativas por semestre. Lo edita la carrera; la app lo valida al cargar (`validateData`).
-- `assets/`: logos de Diseño UdeSA (blanco y negro).
+Sitio estático con Vite + React 18 (desde la v9). Lo publica GitHub Actions en GitHub Pages al llegar a `main` (ver `README.md`).
+- `src/motor.js`: motor de reglas puro (`evalRule`, `tpl`, `semNorm`, `suggestion`, `fill`, `autoProject`, `planTail`, `balance`, `project`, `chequeo`). Lee datos, estado y fecha de una `fuente`; no toca el DOM.
+- `src/App.js`: estado, eventos y `renderVals()` (lo que muestra cada pantalla). Extiende `Logica` (`src/logica.js`), que conserva la semántica de la v8: `setState` actualiza `this.state` en el momento y después re-renderiza.
+- `src/Vista.jsx`: la interfaz. Salió de la plantilla de la v8 con un conversor que respetó su semántica; los hover y foco son clases `hvN`/`foN` de `src/estilos.css`.
+- `src/datos.js` (`validateData`, `safeUrl`) y `src/importar.js` (`leerProgreso`): validación de `carrera.json` y del archivo para retomar.
+- `public/datos/carrera.json`: planes 2023 y 2027, correlativas, reglas, carga por año, calendario y optativas por semestre. Lo edita la carrera.
+- `public/assets/`: logos de Diseño UdeSA. `src/fuentes/`: Roboto (los mismos archivos que servía Google Fonts).
+- `tests/unit/`: motor, datos, importación y simulación de 1.000 casos (Vitest). `tests/e2e/`: Playwright a 360, 768 y 1280 px sobre el build.
 - `docs/code-review-y-qa.md`: historial de revisiones de seguridad y QA.
 
 ## Próximo trabajo
-1. **Publicar en GitHub Pages** (repo público, rama `main`, raíz). Activar Enforce HTTPS, 2FA, protección de `main` y Secret scanning.
-2. **Migrar a build estático** (Vite + React o Preact), conservando la UI y la lógica idénticas. Objetivos:
-   - Quitar `'unsafe-eval'` y unpkg de la CSP: `script-src 'self'`.
-   - Servir Roboto (400/500/700/900, woff2) desde el sitio; sacar Google Fonts de la CSP.
-   - Separar el **motor de reglas** (`evalRule`, `tpl`, `semNorm`, `suggestion`, `fill`, `autoProject`, `planTail`, `balance`, chequeo de inscripción) en un módulo puro con tests.
-   - Tests: unitarios del motor + simulación de 1.000 casos (ver invariantes) + e2e con Playwright a 360, 768 y 1280 px.
-3. Reemplazar las fechas de ejemplo de `calendario` y los programas por materia cuando la carrera los pase.
+1. Reemplazar las fechas de ejemplo de `calendario` y los programas por materia cuando la carrera los pase.
+2. Antes de cambiar el motor, correr `npm run check`: la simulación verifica las invariantes de abajo.
 
 ## Invariantes del motor (no romper)
 - Un **taller** por semestre. Dos talleres = excepción de la carrera (rojo si coincide con otra excepción).
@@ -35,7 +34,7 @@ No es transaccional. Nunca sugerir que "inscribe" o "guarda". Contacto único: *
 - Optativas ya aprobadas: solo se ofrecen las de semestres **ya terminados**. Primero el semestre en que le tocaba; después "Todas", "De otra carrera" o "Por equivalencia".
 - Pensamiento Proyectual: en 2027 es **Taller de Pensamiento Proyectual** (categoría taller); en 2023, Ciclo de Fundamentos.
 - Equivalencias en la práctica (Plan 2023): Portafolio → se dicta como Sistemas Inteligentes; Entrepreneurship y Sistema Industrial → Modelos de Negocio.
-- Resultado de la última simulación (1.016 casos): 0 materias sin ubicar, 0 correlativas rotas, 0 semestres con 2 talleres o más de 5 materias, 0 casos con Graduación fuera del último semestre.
+- Resultado de la última simulación (1.000 casos, `tests/unit/simulacion.test.js`): 0 materias sin ubicar, 0 correlativas rotas, 0 semestres con 2 talleres o más de 5 materias, 0 casos con Graduación fuera del último semestre, y la propuesta nunca da el chequeo en rojo.
 
 ## Tono y copy (español rioplatense, voseo)
 - Breve, sin explicar features ni comparar planes.
@@ -54,5 +53,6 @@ No es transaccional. Nunca sugerir que "inscribe" o "guarda". Contacto único: *
 - Importación de `.json`: tope de 100 KB, validación estricta de tipos, ids cruzados contra el plan y recorte de textos a 80 caracteres.
 - Datos de la carrera congelados (`Object.freeze` profundo).
 - Enlaces a programas: solo `https://drive.google.com` y `https://docs.google.com`, con `noopener noreferrer`.
-- CSP actual en `<meta>` dentro de `index.html`. GitHub Pages no permite headers propios (no hay `frame-ancestors` ni `X-Content-Type-Options`).
+- CSP en `<meta>`, la agrega `vite.config.js` solo al hacer el build: `script-src 'self'`, `style-src 'self'`, `font-src 'self'`, sin `'unsafe-eval'` ni `'unsafe-inline'`. Nada en línea ni de terceros: no sumar `<style>` ni `<script>` en el HTML. GitHub Pages no permite headers propios (no hay `frame-ancestors` ni `X-Content-Type-Options`).
+- No exponer nada en `window`.
 - `robots.txt` bloquea la indexación. Vulnerabilidades: ver `SECURITY.md`.
