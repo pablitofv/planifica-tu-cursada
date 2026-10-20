@@ -260,12 +260,27 @@ describe('chequeo de inscripción', () => {
   it('una materia sin correlativas', () => {
     const aprob = { ...base.aprob }; delete aprob.k240;
     const M = motor(estado({ ...base, aprob, insc: ['k330', 'k341'] })), r = M.chequeo(M.build());
-    expect(r.items[0]).toEqual({ t: 'bad', title: 'Taller de Mercado, todavía no', sub: 'Te faltan correlativas.' });
+    expect(r.items[0]).toEqual({ t: 'bad', title: 'Taller de Mercado, todavía no', sub: 'Te falta aprobar Pensamiento Proyectual.' });
   });
   it('reclama lo adeudado que entraría', () => {
     const aprob = { ...base.aprob }; delete aprob.e010;
     const M = motor(estado({ ...base, aprob, insc: ['k330', 'k341', 'k441', 'k343'] })), r = M.chequeo(M.build());
     expect(r.items).toContainEqual({ t: 'warn', title: 'Falta Economía I', sub: 'Es de 1° año. Priorizala para no trabarte después.' });
+  });
+  // Los dos casos que mandó Pablo: 2° año del Plan 2023 con 1° año, Sustentabilidad, Pensamiento Proyectual, Escritura y Electiva de Arte aprobados
+  const caso = insc => estado({ planId: '2023', anio: 2, aprob: { ...anteriores('2023', 2), k231: true, k240: true, h209: true, 'cf-arte': true }, insc });
+  it('la propuesta de ese caso no avisa nada', () => {
+    const M = motor(caso(null)), r = M.chequeo(M.build());
+    expect(r.items.filter(i => i.t !== 'ok')).toEqual([]);
+  });
+  it('adelantar un taller de 3° con uno de 2° pendiente avisa y sugiere consultarlo', () => {
+    const M = motor(caso(['k330', 'cc100', 'cf-psicologia', 'cf-ciencias'])), r = M.chequeo(M.build());
+    expect(r.items).toContainEqual({ t: 'warn', title: 'Adelantás Taller de Mercado', sub: 'Te queda Taller de Prospectiva, de 2° año. Conviene priorizarla. Si igual querés adelantarla, consultalo con la carrera.' });
+  });
+  it('dejar una de 2° por una obligatoria de 3° avisa lo mismo', () => {
+    const M = motor(caso(['k230', 'k341', 'cf-psicologia', 'cf-ciencias'])), r = M.chequeo(M.build());
+    expect(r.items).toContainEqual({ t: 'warn', title: 'Adelantás Etnografía y Diseño', sub: 'Te queda Teoría Sociológica, de 2° año. Conviene priorizarla. Si igual querés adelantarla, consultalo con la carrera.' });
+    expect(r.items.some(i => (i.sub || '').startsWith('Todavía podés sumar'))).toBe(false);
   });
   it('avisa si la inscripción suma un semestre', () => {
     const M = motor(estado({ planId: '2027', anio: 1, insc: ['o-materia'] })), r = M.chequeo(M.build());

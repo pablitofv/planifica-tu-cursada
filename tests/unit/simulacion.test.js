@@ -1,7 +1,7 @@
 // Simulación de 1.000 estudiantes al azar (semilla fija) contra las invariantes del CLAUDE.md:
 // 0 materias sin ubicar, 0 correlativas rotas, 0 semestres con 2 talleres o más de 5 materias y
 // 0 casos con Trabajo de Graduación fuera del último semestre. Además, la propuesta del semestre
-// actual nunca da un chequeo en rojo.
+// actual nunca da un chequeo en rojo ni avisa que adelanta materias.
 import { describe, it, expect } from 'vitest';
 import { DATOS, estado, motor, violaciones } from './ayuda.js';
 
@@ -55,6 +55,8 @@ describe(`simulación de ${CASOS} casos`, () => {
       const s0 = sems[0];
       if (!s0.isInt && s0.ids.join() !== M.suggestion(c).join()) v.push('el semestre actual no es la sugerencia');
       if (M.chequeo(c).items.some(x => x.t === 'bad')) v.push('la propuesta da un chequeo en rojo');
+      const adel = M.chequeo(c).items.find(x => x.title.startsWith('Adelantás'));
+      if (adel) v.push('la propuesta avisa que adelanta: ' + adel.title + ' / ' + adel.sub);
     }
     resultados.push({ caso: i, plan: est.planId, anio: est.anio, dia: dia.toISOString().slice(0, 10), v });
   }

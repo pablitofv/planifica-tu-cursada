@@ -34,12 +34,16 @@ Sitio estático con Vite + React 18 (desde la v9). Lo publica GitHub Actions en 
 - Optativas ya aprobadas: solo se ofrecen las de semestres **ya terminados**. Primero el semestre en que le tocaba; después "Todas", "De otra carrera" o "Por equivalencia".
 - Pensamiento Proyectual: en 2027 es **Taller de Pensamiento Proyectual** (categoría taller); en 2023, Ciclo de Fundamentos.
 - Equivalencias en la práctica (Plan 2023): Portafolio → se dicta como Sistemas Inteligentes; Entrepreneurship y Sistema Industrial → Modelos de Negocio.
-- Resultado de la última simulación (1.000 casos, `tests/unit/simulacion.test.js`): 0 materias sin ubicar, 0 correlativas rotas, 0 semestres con 2 talleres o más de 5 materias, 0 casos con Graduación fuera del último semestre, y la propuesta nunca da el chequeo en rojo.
+- Resultado de la última simulación (1.000 casos, `tests/unit/simulacion.test.js`): 0 materias sin ubicar, 0 correlativas rotas, 0 semestres con 2 talleres o más de 5 materias, 0 casos con Graduación fuera del último semestre, y la propuesta nunca da el chequeo en rojo ni avisa que adelanta materias.
 
 ## Tono y copy (español rioplatense, voseo)
 - Breve, sin explicar features ni comparar planes.
 - No hablar de "atrasadas" ni de "recibirse": hablar de "próximos semestres".
 - No generar ansiedad: si cursan menos, "Todavía podés sumar una más".
+- Nada que suene a trámite hecho: en Hoy, lo elegido es "A cursar el próximo semestre" (nunca "Vas a cursarla"). Lo de años posteriores: "Podrías adelantarla".
+- Chequeo en rojo: "Inscripción fuera de regla". Si adelanta algo dejando pendiente una del año (también un taller), se avisa y se sugiere consultarlo con la carrera.
+- El panel "Tu semestre" (paso 1) sale del mismo chequeo que el paso 2: los dos tienen que decir lo mismo.
+- Correlativas "una de dos" (`reqAny`): en Hoy van con el tag "Una de dos" y línea punteada, no como "Necesita".
 - Pie: "Esta es una proyección estimativa. / No reemplaza la inscripción realizada por el sistema a cargo del Departamento de Alumnos."
 - Semestres: "1° semestre 2027".
 

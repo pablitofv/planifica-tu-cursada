@@ -274,17 +274,23 @@ export class Motor {
     if (nW && nW <= norm && !(nW < norm && addFit)) push('ok', nW + ' materias');
     else if (nW < norm && addFit) push('ok', this.pl(nW, 'materia'), norm - nW === 1 ? 'Todavía podés sumar una más.' : 'Todavía podés sumar ' + (norm - nW) + ' más.');
     const blocked = ms.filter(m => !c.ev[m.id].ok);
-    if (blocked.length) push('bad', blocked.length === 1 ? blocked[0].corto + ', todavía no' : this.pl(blocked.length, 'materia') + ', todavía no', 'Te faltan correlativas.');
+    if (blocked.length) push('bad', blocked.length === 1 ? blocked[0].corto + ', todavía no' : this.pl(blocked.length, 'materia') + ', todavía no', blocked.length === 1 ? this.falta(c.ev[blocked[0].id], c.by) + '.' : 'Te faltan correlativas.');
     else if (ms.length) push('ok', 'Correlativas en regla');
     // Solo se reclama lo adeudado que entraría: hay lugar, o se puede cambiar por algo de un año posterior
     const owedAvail = availNow.filter(m => m.anio < info0.year), owedOut = owedAvail.filter(m => !idSet.has(m.id) && !(m.cat === 'taller' && nT >= R.maxTalleres) && !(m.cat === 'optativa' && nO >= R.maxOptativas) && (ms.length < norm || ms.some(x => x.anio > m.anio && x.cat !== 'taller' && x.cat !== 'optativa')));
     if (owedOut.length) push('warn', owedOut.length === 1 ? 'Falta ' + owedOut[0].nombre : 'Faltan ' + owedOut.length + ' materias que debés', (owedOut.length === 1 ? 'Es de ' + owedOut[0].anio + '° año.' : this.join(owedOut.map(m => m.corto)) + '.') + ' Priorizala' + (owedOut.length > 1 ? 's' : '') + ' para no trabarte después.');
     else if (owedAvail.length && owedAvail.every(m => idSet.has(m.id))) push('ok', 'Incluye lo que debés');
     else if (owedAvail.length) push('ok', 'Prioriza lo que debés', 'Lo que no entra queda para el semestre que viene.');
-    // Adelantar solo se marca si deja afuera algo de tu año (o anterior) que entraría en su lugar
-    const fits = m => !idSet.has(m.id) && !(m.cat === 'taller' && nT >= R.maxTalleres) && !(m.cat === 'optativa' && nO >= R.maxOptativas);
-    const ahead = ms.filter(m => m.anio > info0.year && m.cat !== 'taller' && availNow.some(x => x.anio <= info0.year && fits(x)));
-    if (ahead.length) push('warn', 'Adelantás ' + this.join(ahead.map(m => m.corto)), 'Se puede, pero conviene priorizar las de ' + info0.year + '° año.');
+    // Adelantar se marca si deja afuera algo de tu año (o anterior) que podría ir en su lugar: un taller por otro taller,
+    // cualquier otra materia por una que no sea taller (una optativa solo si no se pasa del tope)
+    const enLugarDe = (m, x) => !idSet.has(x.id) && x.anio <= info0.year && (m.cat === 'taller' ? x.cat === 'taller' : x.cat !== 'taller' && !(x.cat === 'optativa' && m.cat !== 'optativa' && nO >= R.maxOptativas));
+    // Lo que adelanta la propia propuesta (por ejemplo, una optativa para no estirar la cursada) no se marca
+    const sugSet = new Set(sugI), ahead = ms.filter(m => m.anio > info0.year && !sugSet.has(m.id) && availNow.some(x => enLugarDe(m, x)));
+    if (ahead.length) {
+      const pend = availNow.filter(x => ahead.some(m => enLugarDe(m, x))), anios = [...new Set(pend.map(x => x.anio))].sort().map(y => y + '°').join(' y ') + ' año';
+      const queda = pend.length === 1 ? 'Te queda ' + pend[0].corto + ', de ' + anios + '. Conviene priorizarla.' : (pend.length <= 3 ? 'Te quedan ' + this.join(pend.map(x => x.corto)) : 'Te quedan ' + pend.length + ' materias') + ' de ' + anios + '. Conviene priorizarlas.';
+      push('warn', 'Adelantás ' + this.join(ahead.map(m => m.corto)), queda + ' Si igual querés adelantar' + (ahead.length === 1 ? 'la' : 'las') + ', consultalo con la carrera.');
+    }
     const ord = { bad: 0, warn: 1, ok: 2 }; items.sort((a, b) => ord[a.t] - ord[b.t]);
     if (info0.cal === s.intSem) { items.length = 0; push('ok', 'Este semestre te vas de intercambio', rec.length ? this.pl(rec.length, 'materia') + ' a reconocer.' : 'Confirmá con la carrera qué te reconocen.'); }
     return { items, extra: extra > 0 };
