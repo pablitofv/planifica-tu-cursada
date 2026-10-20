@@ -281,7 +281,7 @@ describe('chequeo de inscripción', () => {
     const M = motor(estado(base)), r = M.chequeo(M.build());
     expect(r.extra).toBe(false);
     expect(r.items.filter(i => i.t !== 'ok')).toEqual([]);
-    expect(titulos(r)).toEqual(expect.arrayContaining(['ok: Un taller', 'ok: Correlativas en regla']));
+    expect(titulos(r)).toEqual(expect.arrayContaining(['ok: 1 Taller', 'ok: Correlativas en regla']));
   });
   it('dos talleres piden excepción', () => {
     const M = motor(estado({ ...base, insc: ['k330', 'k331'] })), r = M.chequeo(M.build());
@@ -309,7 +309,8 @@ describe('chequeo de inscripción', () => {
   });
   it('con menos carga, sin ansiedad: todavía podés sumar', () => {
     const M = motor(estado({ ...base, insc: ['k330', 'k341'] })), r = M.chequeo(M.build());
-    expect(r.items).toContainEqual({ t: 'ok', title: '2 materias', sub: 'Todavía podés sumar 2 más.' });
+    expect(r.items).toContainEqual({ t: 'info', title: 'Todavía podés sumar 2 materias más.', sub: undefined });
+    expect(r.items[r.items.length - 1].t).toBe('info');
   });
   it('una materia sin correlativas', () => {
     const aprob = { ...base.aprob }; delete aprob.k240;
@@ -336,9 +337,9 @@ describe('chequeo de inscripción', () => {
     expect(r.items).toContainEqual({ t: 'warn', title: 'Adelantás Etnografía y Diseño', sub: 'Te queda Teoría Sociológica, de 2° año. Conviene priorizarla. Si igual querés adelantarla, consultalo con la carrera.' });
     expect(r.items.some(i => (i.sub || '').startsWith('Todavía podés sumar'))).toBe(false);
   });
-  it('el total aclara que el seminario cuenta como materia', () => {
+  it('desglosa por tipo, con el seminario aparte, y avisa que queda lugar', () => {
     const M = motor(estado({ planId: '2023', anio: 2, aprob: { ...anteriores('2023', 2), k231: true, k240: true, 'cf-arte': true, cc100: true }, insc: ['k230', 'h209', 'cf-psicologia'] })), r = M.chequeo(M.build());
-    expect(r.items).toContainEqual({ t: 'ok', title: '4 materias', sub: 'Contando el Seminario III. Todavía podés sumar una más.' });
+    expect(titulos(r)).toEqual(['ok: 1 Taller', 'ok: 1 Seminario', 'ok: 2 materias del Ciclo de Fundamentos', 'ok: Correlativas en regla', 'info: Todavía podés sumar una materia más.']);
   });
   it('avisa si la inscripción suma un semestre', () => {
     const M = motor(estado({ planId: '2027', anio: 1, insc: ['o-materia'] })), r = M.chequeo(M.build());

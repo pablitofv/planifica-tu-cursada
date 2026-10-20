@@ -284,10 +284,10 @@ export default class App extends Logica {
     const { items, extra } = this.motor.chequeo(c), ms = ids.map(id => c.by[id]);
     this._extra = extra ? 'Con esta inscripción tu cursada suma un semestre.' : '';
     const nBad = items.filter(i => i.t === 'bad').length, nWarn = items.filter(i => i.t === 'warn').length;
-    const IC = { ok: ['✓', '#7FD3A0'], warn: ['!', '#FFB547'], bad: ['×', '#FF6B8F'] };
+    const IC = { ok: ['✓', '#7FD3A0'], warn: ['!', '#FFB547'], bad: ['×', '#FF6B8F'], info: ['', '#FFFFFF'] };
     const chk = { icon: nBad ? '×' : nWarn ? '!' : '✓', iconBg: nBad ? '#FF6B8F' : nWarn ? '#FFB547' : '#7FD3A0',
       title: info0.cal === s.intSem ? 'Semestre de intercambio' : !ms.length ? (c.pend.length ? 'Todavía no sumaste materias' : '¡Aprobaste todo el plan!') : nBad ? 'Inscripción fuera de regla' : nWarn ? (nWarn === 1 ? 'Revisá una cosa' : 'Revisá ' + nWarn + ' cosas') : 'Tu inscripción está en orden',
-      items: items.map(i => ({ icon: IC[i.t][0], bg: IC[i.t][1], title: i.title, sub: i.sub || '', subShow: !!i.sub })),
+      items: items.map(i => ({ icon: IC[i.t][0], bg: IC[i.t][1], eye: i.t === 'info', title: i.title, sub: i.sub || '', subShow: !!i.sub })),
       mail: !!(nBad || nWarn), foot: nBad || nWarn ? 'Para pedir cambios o autorizaciones, escribile a la carrera:' : '' };
 
     // Próximos semestres
@@ -382,10 +382,10 @@ export default class App extends Logica {
           const lack = Math.max(0, n - have), over = Math.max(0, have - n);
           return { label: NM[cat][n > 1 || have > 1 ? 1 : 0], slots, lack, sub: lack ? (cat === 'seminario' ? 'Viene con el taller' : lack === 1 ? 'Lugar libre' : lack + ' lugares libres') : over ? (n ? over + ' de más' : 'No va este semestre') : '✓ Cubierto', subFg: lack ? '#C9CBD0' : over ? '#FFB547' : '#7FD3A0', aria: NM[cat][1] + ': ' + have + ' de ' + n }; });
         // El estado sale del mismo chequeo que el paso 2, así los dos pasos dicen lo mismo
-        const overT = cats.some(x => x.subFg === '#FFB547'), top = items.find(i => i.t === 'bad') || items.find(i => i.t === 'warn'), sumar = items.find(i => i.sub && i.sub.includes('Todavía podés sumar'));
+        const overT = cats.some(x => x.subFg === '#FFB547'), top = items.find(i => i.t === 'bad') || items.find(i => i.t === 'warn'), sumar = items.find(i => i.t === 'info');
         const txt = i => i.title + '.' + (i.sub ? ' ' + i.sub : '');
-        const [icon, iconBg, status] = isIntNow ? ['✓', '#7FD3A0', 'Semestre de intercambio'] : top ? (top.t === 'bad' ? ['×', '#FF6B8F', 'Inscripción fuera de regla. ' + txt(top)] : ['!', '#FFB547', txt(top)]) : sumar ? ['…', '#C9CBD0', sumar.sub] : overT ? ['!', '#FFB547', 'Tenés más de lo recomendado.'] : ['✓', '#7FD3A0', 'Están todos los lugares cubiertos.'];
-        return { isInt: isIntNow, cats: isIntNow ? [] : cats, count: isIntNow ? '' : this.motor.pl(pk.reduce((q, m) => q + 1 + (c.att[m.id] ? 1 : 0), 0), 'materia'), icon, iconBg, status,
+        const [icon, iconBg, status] = isIntNow ? ['✓', '#7FD3A0', 'Semestre de intercambio'] : top ? (top.t === 'bad' ? ['×', '#FF6B8F', 'Inscripción fuera de regla. ' + txt(top)] : ['!', '#FFB547', txt(top)]) : sumar ? ['', '#FFFFFF', sumar.title] : overT ? ['!', '#FFB547', 'Tenés más de lo recomendado.'] : ['✓', '#7FD3A0', 'Están todos los lugares cubiertos.'];
+        return { isInt: isIntNow, cats: isIntNow ? [] : cats, count: isIntNow ? '' : this.motor.pl(pk.reduce((q, m) => q + 1 + (c.att[m.id] ? 1 : 0), 0), 'materia'), icon, iconBg, status, eye: !isIntNow && !top && !!sumar,
           // En la barra de abajo (celular y tablet) va solo el título: el detalle está en el paso 2
           statusCorto: !isIntNow && top ? (top.t === 'bad' ? 'Inscripción fuera de regla. ' : '') + top.title + '.' : status };
       })(),
@@ -397,8 +397,8 @@ export default class App extends Logica {
       goInsc: () => this.setState({ view: 'insc', sel: null, hover: null }), goProy: () => this.setState({ view: 'proy', pick: null }),
       inscSem: this.motor.sLbl(info0.cal), inscFecha: this.motor.fechaCambios(info0.cal), inscFechaShow: !!this.motor.fechaCambios(info0.cal), inscYear: info0.yearReal <= 4 ? info0.yearReal + '° año' : 'Lo que te queda',
       inscSub: edited ? 'Si algo no coincide con lo que te asignó el Departamento de Alumnos, cambialo acá para chequearlo.' : 'Compará con lo que te asignó el Departamento de Alumnos y cambiá lo que sea distinto para chequearlo.',
-      inscIsInt: info0.cal === s.intSem, rows: info0.cal === s.intSem ? [] : rowVMs, inscCuentaShow: info0.cal !== s.intSem && rowVMs.length > 0, inscCuenta: (() => { const nW = ids.reduce((a, id) => a + 1 + (c.att[id] ? 1 : 0), 0), semis = ids.filter(id => c.att[id]).map(id => 'el ' + c.att[id].nombre.replace('Seminario de Profundización Tecnológica', 'Seminario')), libres = rowVMs.filter(r => !r.has).length;
-        return { n: this.motor.pl(nW, 'materia'), resto: (semis.length ? ', contando ' + this.motor.join(semis) : '') + (libres ? ' · ' + (libres === 1 ? '1 lugar libre' : libres + ' lugares libres') : '') }; })(), addShow: addPool.length > 0 && info0.cal !== s.intSem, add,
+      inscIsInt: info0.cal === s.intSem, rows: info0.cal === s.intSem ? [] : rowVMs, inscCuentaShow: info0.cal !== s.intSem && rowVMs.length > 0, inscCuenta: (() => { const nW = ids.reduce((a, id) => a + 1 + (c.att[id] ? 1 : 0), 0), libres = rowVMs.filter(r => !r.has).length;
+        return { n: this.motor.pl(nW, 'materia'), resto: libres ? ' · ' + (libres === 1 ? '1 lugar libre' : libres + ' lugares libres') : '' }; })(), addShow: addPool.length > 0 && info0.cal !== s.intSem, add,
       edited, onRestore: () => this.setState({ insc: null, pick: null }), chk,
       manual, onResetPlan: () => this.setState({ plan: null, semCount: 0 }), proyRange, proyTitle: filled.length === 1 ? 'Último semestre' : 'Próximos semestres', proySame: filled.length === 1, proyRangeShow: filled.length !== 1, proyN: String(filled.length), proyNLbl: filled.length === 1 ? 'semestre' : 'semestres', proyA: semParts(cals[0]), proyB: semParts(lastCal), proyMetaShow: proyStats.length > 0, proySub, proy, poolShow: pr.unplaced.length > 0, pool,
       onAddSem: () => { const M = this.motor.materialize(c); this.setState({ plan: M.plan, insc: M.insc, semCount: M.semCount + 1 }); },

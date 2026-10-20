@@ -204,14 +204,16 @@ test('el Plan 2023 no tiene fila de transversales', async ({ page }) => {
 // 2° año del Plan 2023 con Prospectiva (y su seminario), Escritura y Psicología: 4 materias y un lugar libre
 const CUATRO = { plan: '2023', anio: 2, aprobadas: ['k030', 'k031', 'c020', 'e010', 'a016', 'cf-historia', 'cf-literatura', 'cf-filosofia', 'k231', 'k240', 'cf-arte', 'cc100'], inscripcion: ['k230', 'h209', 'cf-psicologia'] };
 
-test('inscripción: el total cuenta el seminario y el lugar libre se ve vacío', async ({ page }) => {
+test('inscripción: total, lugar libre vacío y desglose por tipo en el chequeo', async ({ page }) => {
   await abrir(page);
   await abrirArchivo(page, CUATRO);
   await page.getByRole('button', { name: /Inscripción/ }).first().click();
-  await expect(page.getByRole('status').filter({ hasText: '4 materias, contando el Seminario III · 1 lugar libre' })).toBeVisible();
-  await expect(page.getByText('Cuenta como materia')).toBeVisible();
+  await expect(page.getByRole('status').filter({ hasText: '4 materias · 1 lugar libre' })).toBeVisible();
+  await expect(page.getByText('Cuenta como materia')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Elegir una del Ciclo de Fundamentos' })).toContainText('Lugar libre');
-  await expect(page.getByText('Contando el Seminario III. Todavía podés sumar una más.')).toBeVisible();
+  const chequeo = page.getByRole('region', { name: 'Chequeo' });
+  for (const t of ['1 Taller', '1 Seminario', '2 materias del Ciclo de Fundamentos', 'Todavía podés sumar una materia más.']) await expect(chequeo.getByText(t, { exact: true })).toBeVisible();
+  await expect(chequeo.locator('li').last()).toContainText('Todavía podés sumar una materia más.');
 });
 
 test('intercambio con el plan armado a mano: corre los semestres y no pierde materias', async ({ page }) => {

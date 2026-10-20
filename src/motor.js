@@ -263,7 +263,7 @@ export class Motor {
   }
   // Lo que se puede cursar ahora (correlativas en regla), sin lo que se reconoce en el intercambio
   disponibles(c) { const recSet = new Set(this.recIds(c)); return c.pend.filter(m => c.ev[m.id].ok && !recSet.has(m.id)).sort((a, b) => a.anio - b.anio || ORD[a.cat] - ORD[b.cat]); }
-  // Chequeo de la inscripción del semestre actual. Cada ítem es { t: 'ok' | 'warn' | 'bad', title, sub }.
+  // Chequeo de la inscripción del semestre actual. Cada ítem es { t: 'ok' | 'warn' | 'bad' | 'info', title, sub }.
   // extra: la inscripción alarga la cursada respecto de la propuesta.
   chequeo(c) {
     const s = this.estado, R = c.P.reglas, info0 = this.semAt(0), ids = this.inscIds(c), idSet = new Set(ids), rec = this.recIds(c), recSet = new Set(rec), availNow = this.disponibles(c);
@@ -272,8 +272,6 @@ export class Motor {
     const items = [], push = (t, title, sub) => items.push({ t, title, sub });
     const nW = ms.reduce((a, m) => a + 1 + (c.att[m.id] ? 1 : 0), 0);
     const exc = (nT > 1 ? 1 : 0) + (nW > norm ? 1 : 0);
-    // Los seminarios cuentan como materia: se aclara en el total
-    const semis = ms.filter(m => c.att[m.id]).map(m => 'el ' + c.att[m.id].nombre.replace('Seminario de Profundización Tecnológica', 'Seminario')), cont = semis.length ? 'Contando ' + this.join(semis) + '. ' : '';
     const tallerAvail = availNow.some(m => m.cat === 'taller');
     if (nW > R.maxMaterias) push('bad', nW + ' materias', 'El máximo es ' + R.maxMaterias + '.');
     else if (nT > 1 && nW >= 5) push('bad', nT + ' talleres y ' + nW + ' materias', 'No se permite: 5 materias es solo para quien cursa un taller.');
@@ -281,14 +279,18 @@ export class Motor {
     else {
       if (nT > 1) push('warn', nT + ' talleres', 'Necesitás una excepción de la carrera.');
       if (nTr > R.maxTransversales) push('warn', nTr + ' talleres transversales', 'Lo recomendado es uno por semestre. Si querés cursar ' + (nTr === 2 ? 'dos' : nTr) + ', consultalo con la carrera.');
-      if (nW > norm) push('warn', nW + ' materias', cont + 'La carga recomendada para este semestre es de ' + norm + '. Si querés sumar una más, consultalo con la carrera.');
+      if (nW > norm) push('warn', nW + ' materias', 'La carga recomendada para este semestre es de ' + norm + '. Si querés sumar una más, consultalo con la carrera.');
     }
     const lenOf = ins => this.autoProject(c, s.intSem, this.recIds(c), ins).filter(x => x.ids.length || x.isInt).length;
     const sugI = this.suggestion(c), extra = nW && info0.cal !== s.intSem ? lenOf(ids) - lenOf(sugI) : 0;
     if (extra > 0) push('warn', 'Suma un semestre', 'Volviendo a la propuesta, no pasa.');
-    if (nT === 1) push('ok', 'Un taller'); else if (!nT && tallerAvail) push('warn', 'Sin taller', 'Tenés uno disponible.');
-    if (nW && nW <= norm && !(nW < norm && addFit)) push('ok', nW + ' materias', cont ? cont.trim() : undefined);
-    else if (nW < norm && addFit) push('ok', this.pl(nW, 'materia'), cont + (norm - nW === 1 ? 'Todavía podés sumar una más.' : 'Todavía podés sumar ' + (norm - nW) + ' más.'));
+    if (!nT && tallerAvail) push('warn', 'Sin taller', 'Tenés uno disponible.');
+    // Qué hay en la inscripción, por tipo (el seminario va aparte: cuenta como una materia más). Lo que ya tiene un aviso no se repite
+    const N = { taller: ['Taller', 'Talleres'], seminario: ['Seminario', 'Seminarios'], transversal: ['Taller transversal', 'Talleres transversales'], obligatoria: ['Obligatoria', 'Obligatorias'], optativa: ['Optativa', 'Optativas'], cf: ['materia del Ciclo de Fundamentos', 'materias del Ciclo de Fundamentos'] };
+    const cuenta = { seminario: ms.filter(m => c.att[m.id]).length }; ms.forEach(m => cuenta[m.cat] = (cuenta[m.cat] || 0) + 1);
+    ['taller', 'seminario', 'transversal', 'obligatoria', 'optativa', 'cf'].forEach(k => { const n = cuenta[k] || 0; if (n && !(k === 'taller' && nT > 1) && !(k === 'transversal' && nTr > R.maxTransversales)) push('ok', n + ' ' + N[k][n === 1 ? 0 : 1]); });
+    // Si queda lugar, va como un punto aparte (al final, con un ojo)
+    if (nW < norm && addFit) push('info', norm - nW === 1 ? 'Todavía podés sumar una materia más.' : 'Todavía podés sumar ' + (norm - nW) + ' materias más.');
     const blocked = ms.filter(m => !c.ev[m.id].ok);
     if (blocked.length) push('bad', blocked.length === 1 ? blocked[0].corto + ', todavía no' : this.pl(blocked.length, 'materia') + ', todavía no', blocked.length === 1 ? this.falta(c.ev[blocked[0].id], c.by) + '.' : 'Te faltan correlativas.');
     else if (ms.length) push('ok', 'Correlativas en regla');
@@ -307,7 +309,7 @@ export class Motor {
       const queda = pend.length === 1 ? 'Te queda ' + pend[0].corto + ', de ' + anios + '. Conviene priorizarla.' : (pend.length <= 3 ? 'Te quedan ' + this.join(pend.map(x => x.corto)) : 'Te quedan ' + pend.length + ' materias') + ' de ' + anios + '. Conviene priorizarlas.';
       push('warn', 'Adelantás ' + this.join(ahead.map(m => m.corto)), queda + ' Si igual querés adelantar' + (ahead.length === 1 ? 'la' : 'las') + ', consultalo con la carrera.');
     }
-    const ord = { bad: 0, warn: 1, ok: 2 }; items.sort((a, b) => ord[a.t] - ord[b.t]);
+    const ord = { bad: 0, warn: 1, ok: 2, info: 3 }; items.sort((a, b) => ord[a.t] - ord[b.t]);
     if (info0.cal === s.intSem) { items.length = 0; push('ok', 'Este semestre te vas de intercambio', rec.length ? this.pl(rec.length, 'materia') + ' a reconocer.' : 'Confirmá con la carrera qué te reconocen.'); }
     return { items, extra: extra > 0 };
   }

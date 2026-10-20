@@ -444,7 +444,9 @@ export default function Vista({ v }) {
                             ))}
                           </ul>
                           <div role="status" style={{ display: "flex", gap: "10px", alignItems: "center", borderTop: "1px solid #2E3036", paddingTop: "14px" }}>
-                            <span aria-hidden="true" style={{ flex: "none", width: "26px", height: "26px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "900", background: `${v.trk.iconBg}`, color: "#16171A" }}>{v.trk.icon}</span>
+                            <span aria-hidden="true" style={{ flex: "none", width: "26px", height: "26px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "900", background: `${v.trk.iconBg}`, color: "#16171A" }}>{v.trk.eye ? (
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#16171A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
+                              ) : v.trk.icon}</span>
                             <span style={{ fontSize: "14.5px", fontWeight: "700", lineHeight: "1.35" }}>{v.trk.status}</span>
                           </div>
                           <button className="hv7 fo1" onClick={v.goInsc} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", background: "#E0005A", color: "#FFFFFF", padding: "18px 22px", borderRadius: "14px" }}>
@@ -733,7 +735,6 @@ export default function Vista({ v }) {
                                 <span style={{ alignSelf: "flex-start", display: "flex", alignItems: "center", gap: "8px", marginTop: "2px", padding: "7px 12px 7px 8px", borderRadius: "8px", background: "#F0F0EC", boxShadow: "inset 0 0 0 1px #D5D6D2" }}>
                                   <span aria-hidden="true" style={{ flex: "none", width: "18px", height: "18px", borderRadius: "50%", background: "#1C1E22", color: "#F0F0EC", fontSize: "13px", fontWeight: "900", lineHeight: "1", display: "flex", alignItems: "center", justifyContent: "center" }}>+</span>
                                   <span style={{ fontSize: "15px", fontWeight: "900", lineHeight: "1.2" }}>{r.semName}</span>
-                                  <span style={{ fontSize: "12.5px", fontWeight: "500", color: "#4A4F58" }}>Cuenta como materia</span>
                                 </span>
                               ) : null}
                             </button>
@@ -816,7 +817,9 @@ export default function Vista({ v }) {
                       <ul style={{ listStyle: "none", margin: "0", padding: "0", display: "flex", flexDirection: "column" }}>
                         {v.chk.items.map((it, i) => (
                           <li key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start", padding: "11px 0", borderTop: "1px solid #2E3036" }}>
-                            <span aria-hidden="true" style={{ flex: "none", width: "22px", height: "22px", marginTop: "1px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "900", background: `${it.bg}`, color: "#16171A" }}>{it.icon}</span>
+                            <span aria-hidden="true" style={{ flex: "none", width: "22px", height: "22px", marginTop: "1px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", fontWeight: "900", background: `${it.bg}`, color: "#16171A" }}>{it.eye ? (
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16171A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
+                            ) : it.icon}</span>
                             <span style={{ minWidth: "0", display: "flex", flexDirection: "column", gap: "2px" }}>
                               <span style={{ fontSize: "15px", fontWeight: "700", lineHeight: "1.3" }}>{it.title}</span>
                               {it.subShow ? (

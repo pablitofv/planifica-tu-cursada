@@ -40,10 +40,10 @@ Sitio estático con Vite + React 18 (desde la v9). Lo publica GitHub Actions en 
 ## Tono y copy (español rioplatense, voseo)
 - Breve, sin explicar features ni comparar planes.
 - No hablar de "atrasadas" ni de "recibirse": hablar de "próximos semestres".
-- No generar ansiedad: si cursan menos, "Todavía podés sumar una más".
+- No generar ansiedad: si cursan menos, "Todavía podés sumar una materia más".
 - Nada que suene a trámite hecho: en Hoy, lo elegido es "A cursar el próximo semestre" (nunca "Vas a cursarla"). Lo de años posteriores: "Podrías adelantarla".
 - Chequeo en rojo: "Inscripción fuera de regla". Si adelanta algo dejando pendiente una del año (también un taller), se avisa y se sugiere consultarlo con la carrera.
-- En Inscripción, el total siempre aclara el seminario ("4 materias, contando el Seminario III · 1 lugar libre") y un lugar sin materia se ve vacío ("Lugar libre", borde punteado).
+- En Inscripción: arriba de la lista, el total ("4 materias · 1 lugar libre"), y un lugar sin materia se ve vacío ("Lugar libre", borde punteado). El chequeo desglosa por tipo ("1 Taller", "1 Seminario", "2 materias del Ciclo de Fundamentos") y, si queda lugar, cierra con un punto con ojo: "Todavía podés sumar una materia más.". No escribir "cuenta como materia".
 - El panel "Tu semestre" (paso 1) sale del mismo chequeo que el paso 2: los dos tienen que decir lo mismo.
 - Correlativas "una de dos" (`reqAny`): en Hoy van con el tag "Una de dos" y línea punteada, no como "Necesita".
 - Pie: "Esta es una proyección estimativa. / No reemplaza la inscripción realizada por el sistema a cargo del Departamento de Alumnos."
