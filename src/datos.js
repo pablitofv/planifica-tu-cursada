@@ -3,12 +3,12 @@
 export function validateData(d) {
   const fail = () => { throw new Error('datos'); };
   const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v), str = (v, n) => typeof v === 'string' && v.length > 0 && v.length <= (n || 120);
-  const ISO = /^\d{4}-\d{2}-\d{2}$/, CAL = /^20\d{2}-[12]$/, CATS = ['taller', 'obligatoria', 'optativa', 'cf'];
+  const ISO = /^\d{4}-\d{2}-\d{2}$/, CAL = /^20\d{2}-[12]$/, CATS = ['taller', 'transversal', 'obligatoria', 'optativa', 'cf'];
   if (!isObj(d) || !isObj(d.planes) || !isObj(d.reglas) || !Array.isArray(d.calendario)) fail();
   const calendario = d.calendario.map(x => { if (!isObj(x) || !CAL.test(x.id) || !ISO.test(x.inicio) || !ISO.test(x.cambiosHasta)) fail(); return { id: x.id, inicio: x.inicio, cambiosHasta: x.cambiosHasta }; });
   const r = d.reglas, num = v => Number.isInteger(v) && v >= 0 && v <= 10;
-  if (![r.maxMaterias, r.maxTalleres, r.maxOptativas, r.maxReconocerOptativas].every(num) || !Array.isArray(r.intercambio)) fail();
-  const reglas = { maxMaterias: r.maxMaterias, maxTalleres: r.maxTalleres, maxOptativas: r.maxOptativas, maxReconocerOptativas: r.maxReconocerOptativas, intercambio: r.intercambio.map(p => { if (!Array.isArray(p) || !p.every(num)) fail(); return [p[0], p[1]]; }) };
+  if (![r.maxMaterias, r.maxTalleres, r.maxOptativas, r.maxReconocerOptativas].every(num) || (r.maxTransversales != null && !num(r.maxTransversales)) || !Array.isArray(r.intercambio)) fail();
+  const reglas = { maxMaterias: r.maxMaterias, maxTalleres: r.maxTalleres, maxOptativas: r.maxOptativas, maxReconocerOptativas: r.maxReconocerOptativas, maxTransversales: r.maxTransversales == null ? 1 : r.maxTransversales, intercambio: r.intercambio.map(p => { if (!Array.isArray(p) || !p.every(num)) fail(); return [p[0], p[1]]; }) };
   const planes = {};
   ['2023', '2027'].forEach(pid => {
     const P = d.planes[pid]; if (!isObj(P) || !Array.isArray(P.materias)) fail();

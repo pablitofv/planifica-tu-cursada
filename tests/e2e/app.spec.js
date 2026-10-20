@@ -90,7 +90,7 @@ test('la inscripción se puede cambiar y el chequeo avisa', async ({ page }) => 
   await page.getByRole('button', { name: 'Sumar materia' }).click();
   await page.getByRole('group', { name: 'Talleres' }).getByRole('button').first().click();
   // La propuesta de 3° año tiene 4 materias: con un segundo taller son 5, y eso no se permite
-  await expect(page.getByRole('heading', { name: 'Así no se puede' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Inscripción fuera de regla' })).toBeVisible();
   await expect(page.getByText('2 talleres y 5 materias', { exact: true })).toBeVisible();
   await expect(page.getByRole('link', { name: 'diseno@udesa.edu.ar' }).first()).toBeVisible();
   await page.getByRole('button', { name: 'Volver a la propuesta' }).click();
@@ -146,6 +146,59 @@ test('archivo para retomar: descarga y vuelve a abrir', async ({ page }) => {
   await page.getByRole('button', { name: /^Exportar$/ }).click();
   await expect(page.getByRole('dialog').getByText('<img src=x onerror=alert(1)>')).toBeVisible();
   expect(await page.locator('img[src=x]').count()).toBe(0);
+});
+
+// 2° año del Plan 2023 con Taller de Mercado (3°) en lugar de Taller de Prospectiva (2°)
+const ADELANTA = { plan: '2023', anio: 2, aprobadas: ['k030', 'k031', 'c020', 'e010', 'a016', 'cf-historia', 'cf-literatura', 'cf-filosofia', 'k231', 'k240', 'h209', 'cf-arte'], inscripcion: ['k330', 'cc100', 'cf-psicologia', 'cf-ciencias'] };
+const abrirArchivo = (page, obj) => page.locator('input[type=file]').setInputFiles({ name: 'mi.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(obj)) });
+
+test('adelantar un taller: el paso 1 y el paso 2 avisan lo mismo', async ({ page }) => {
+  await abrir(page);
+  await abrirArchivo(page, ADELANTA);
+  await expect(page.getByRole('heading', { name: '¿Qué vas a cursar?' })).toBeVisible();
+  // En escritorio el panel muestra el aviso completo; en la barra de abajo, el título (y el detalle va en aria-label)
+  await expect(page.getByText(/^Adelantás Taller de Mercado./).first()).toBeVisible();
+  await expect(page.getByRole('status', { name: /Te queda Taller de Prospectiva, de 2° año/ }).or(page.getByText(/Te queda Taller de Prospectiva, de 2° año/)).first()).toBeAttached();
+  await expect(page.getByText('Están todos los lugares cubiertos.')).toHaveCount(0);
+  await page.getByRole('button', { name: /Inscripción/ }).first().click();
+  await expect(page.getByRole('heading', { name: 'Revisá una cosa' })).toBeVisible();
+  await expect(page.getByText('Adelantás Taller de Mercado', { exact: true })).toBeVisible();
+  await expect(page.getByText(/consultalo con la carrera/).first()).toBeVisible();
+});
+
+test('correlativas "una de dos" y textos de las tarjetas', async ({ page }) => {
+  await abrir(page);
+  await abrirArchivo(page, ADELANTA);
+  await expect(page.getByRole('heading', { name: '¿Qué vas a cursar?' })).toBeVisible();
+  if (page.viewportSize().width < 760) {
+    await expect(page.getByRole('button', { name: /A cursar el próximo semestre/ }).first()).toBeAttached();
+    return;
+  }
+  await expect(page.locator('[data-mid="k330"]')).toContainText('A cursar el próximo semestre');
+  await expect(page.locator('[data-mid="k331"]')).toContainText('Podrías adelantarla');
+  await page.locator('[data-mid="k330"]').hover();
+  for (const id of ['k230', 'k231']) await expect(page.locator('[data-mid="' + id + '"]')).toContainText('Una de dos');
+  await expect(page.locator('[data-mid="k240"]')).toContainText('Necesita');
+  await expect(page.getByText('Una de dos', { exact: true }).last()).toBeVisible();
+  await expect(page.locator('svg path[stroke-dasharray]').first()).toBeAttached();
+});
+
+test('talleres transversales: fila propia en 2027, se pueden cursar en cualquier año', async ({ page }) => {
+  await abrir(page);
+  await abrirArchivo(page, { plan: '2027', anio: 2, aprobadas: ['t-interaccion', 'o-materia', 'o-imagen', 'f-etnografia', 'f-psicologia', 'f-administracion', 'f-pensamiento', 'f-cuantitativos'] });
+  await expect(page.getByRole('heading', { name: '¿Qué vas a cursar?' })).toBeVisible();
+  if (page.viewportSize().width < 760) await page.getByRole('tab', { name: /^3°/ }).click();
+  const fila = page.getByRole('group', { name: 'Talleres transversales' });
+  await expect(fila).toBeVisible();
+  await expect(fila.getByRole('button', { name: /Taller Transversal B. Podés cursarla/ })).toBeVisible();
+  await expect(fila).not.toContainText('Debés');
+});
+
+test('el Plan 2023 no tiene fila de transversales', async ({ page }) => {
+  await abrir(page);
+  await abrirArchivo(page, ADELANTA);
+  await expect(page.getByRole('heading', { name: '¿Qué vas a cursar?' })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Talleres transversales' })).toHaveCount(0);
 });
 
 test('un archivo de un semestre que ya pasó avisa qué cambió', async ({ page }) => {

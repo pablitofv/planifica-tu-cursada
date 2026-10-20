@@ -2,7 +2,7 @@
 // Las reglas de la carrera viven en motor.js.
 import React from 'react';
 import { Logica } from './logica.js';
-import { Motor, CAT, LANES, ORD, SHOW } from './motor.js';
+import { Motor, CAT, LANES, ORD, SHOW, libre } from './motor.js';
 import { validateData, safeUrl } from './datos.js';
 import { leerProgreso, ARCHIVO_INVALIDO } from './importar.js';
 
@@ -105,7 +105,8 @@ export default class App extends Logica {
         const cv = (x1, y1, x2, y2) => { const dx = Math.max(24, (x2 - x1) * .5); return 'M' + x1.toFixed(1) + ' ' + y1.toFixed(1) + ' C' + (x1 + dx).toFixed(1) + ' ' + y1.toFixed(1) + ',' + (x2 - dx).toFixed(1) + ' ' + y2.toFixed(1) + ',' + x2.toFixed(1) + ' ' + y2.toFixed(1); };
         const b = pos(act);
         if (b) {
-          this.motor.allReq(m).forEach(id => { const a = pos(id); if (a) lines.push({ d: cv(a.r, a.y, b.l, b.y), k: 'in', x: b.l, y: b.y }); });
+          const any = new Set([].concat(...(m.reqAny || [])).filter(id => !(m.req || []).includes(id)));
+          this.motor.allReq(m).forEach(id => { const a = pos(id); if (a) lines.push({ d: cv(a.r, a.y, b.l, b.y), k: any.has(id) ? 'any' : 'in', x: b.l, y: b.y }); });
           c.kids[act].forEach(id => { const a = pos(id); if (a) lines.push({ d: cv(b.r, b.y, a.l, a.y), k: 'out', x: a.l, y: a.y }); });
         }
       }
@@ -138,19 +139,19 @@ export default class App extends Logica {
   }
 
   cardVM(m, c, rel) {
-    const s = this.state, st = c.st(m.id), isAct = (s.sel || s.hover) === m.id, owed = st !== 'aprobada' && m.anio < s.anio, on = st === 'aprobada';
+    const s = this.state, st = c.st(m.id), isAct = (s.sel || s.hover) === m.id, owed = st !== 'aprobada' && !libre(m) && m.anio < s.anio, on = st === 'aprobada';
     const v = Object.assign({}, {
       aprobada: { bg: '#1C1E22', fg: '#FFFFFF', sub: '#C9CBD0', ol: 'none', sh: 'none', label: 'Aprobada' },
-      disponible: { bg: '#FFFFFF', fg: '#1C1E22', sub: '#3A3D44', ol: 'none', sh: 'inset 0 0 0 1.5px #1C1E22', label: m.anio > s.anio ? 'Podés adelantarla' : 'Podés cursarla' },
+      disponible: { bg: '#FFFFFF', fg: '#1C1E22', sub: '#3A3D44', ol: 'none', sh: 'inset 0 0 0 1.5px #1C1E22', label: m.anio > s.anio && !(libre(m) && s.anio >= 2) ? 'Podrías adelantarla' : 'Podés cursarla' },
       bloqueada: { bg: '#F4F4F1', fg: '#3A3D44', sub: '#3A3D44', ol: '1.5px dashed #8A8F98', sh: 'none', label: this.motor.falta(c.ev[m.id], c.by) },
     }[st]);
     const picked = !on && this._pick && this._pick.has(m.id), pickable = !on && st === 'disponible' && !this._isInt;
-    if (picked) Object.assign(v, { bg: '#E0005A', fg: '#FFFFFF', sub: '#FFFFFF', ol: 'none', sh: 'none', label: 'Vas a cursarla' });
+    if (picked) Object.assign(v, { bg: '#E0005A', fg: '#FFFFFF', sub: '#FFFFFF', ol: 'none', sh: 'none', label: 'A cursar el próximo semestre' });
     if (isAct) { v.sh = (on ? '0 0 0 3px #FFFFFF, 0 0 0 5px #1C1E22' : 'inset 0 0 0 3px #1C1E22') + ', 0 6px 18px rgba(22,23,26,.18)'; v.ol = 'none'; }
     let tag = owed ? 'Debés' : '', tagBg = '#C2004C', op = 1;
-    if (rel) { tag = ''; if (rel.in.has(m.id)) { tag = 'Necesita'; tagBg = '#1C1E22'; } else if (rel.out.has(m.id)) { tag = 'Habilita'; tagBg = '#C2004C'; } else if (!isAct) op = .45; }
+    if (rel) { tag = ''; if (rel.any.has(m.id)) { const n = rel.any.get(m.id); tag = n === 2 ? 'Una de dos' : 'Una de ' + n; tagBg = '#4A4F58'; } else if (rel.in.has(m.id)) { tag = 'Necesita'; tagBg = '#1C1E22'; } else if (rel.out.has(m.id)) { tag = 'Habilita'; tagBg = '#C2004C'; } else if (!isAct) op = .45; }
     const offNow = m.cat === 'optativa' && !on && this.motor.ofertas(this.motor.semAt(0).cal), nota = m.cat === 'optativa' && s.notas[m.id];
-    const offL = !nota && offNow && (picked || pickable) ? offNow.map(o => o.titulo) : null, alias = nota ? nota : !offL && m.dictadoComo ? 'Se dicta como ' + m.dictadoComo : '';
+    const offL = !nota && offNow && (picked || pickable) && m.anio === this._optAnio ? offNow.map(o => o.titulo) : null, alias = nota ? nota : !offL && m.dictadoComo ? 'Se dicta como ' + m.dictadoComo : '';
     return Object.assign(v, { id: m.id, nombre: m.corto, alias, aliasShow: !!alias, offs: offL || [], offShow: !!offL, offRule: picked ? 'rgba(255,255,255,.35)' : '#E2E3DF', semShow: !!c.att[m.id], semName: c.att[m.id] ? c.att[m.id].nombre.replace('Seminario de Profundización Tecnológica', 'Seminario') : '', semBg: on ? '#3A3C43' : picked ? '#B8004A' : '#F0F0EC', semFg: on || picked ? '#FFFFFF' : '#1C1E22', semBd: on ? '#4A4D55' : picked ? '#9E0040' : '#D5D6D2', op, tag, tagShow: !!tag, tagBg, pressed: picked || pickable ? !!picked : s.sel === m.id, on,
       iBg: picked ? '#FFFFFF' : '#1C1E22', iFg: picked ? '#E0005A' : '#FFFFFF', focus: on || picked ? '#FFFFFF' : '#1C1E22', chkHov: on ? '#3A3C43' : picked ? '#C2004C' : '#F0F0EC', boxBd: on || picked ? '#FFFFFF' : '#5E636B', sideShow: pickable || picked, infoLbl: 'Correlativas de ' + m.nombre, onInfo: () => this.select(m.id),
       aria: m.nombre + '. ' + v.label + (owed ? '. La debés, es de ' + m.anio + '° año' : '') + (picked ? '. Sacar de tu inscripción' : pickable ? '. Sumar a tu inscripción' : '. Ver correlativas'),
@@ -206,6 +207,8 @@ export default class App extends Logica {
     const order = ['hoy', 'insc', 'proy'], curI = order.indexOf(s.view);
     const info0 = this.motor.semAt(0), isIntNow = info0.cal === s.intSem;
     this._pick = new Set(this.motor.inscIds(c)); this._isInt = isIntNow;
+    // Las ofertas de optativas se muestran solo en las del año más próximo: son las que podrías cursar ahora
+    const optP = c.pend.filter(m => m.cat === 'optativa'); this._optAnio = optP.length ? Math.min(...optP.map(m => m.anio)) : 0;
     const steps = [['hoy', 'Hoy', 'Elegí qué cursar'], ['insc', 'Inscripción', 'Revisala y ajustala'], ['proy', mob ? 'Semestres' : 'Próximos semestres', 'Cómo sigue tu cursada']].map(([id, label, sub], i) => { const on = s.view === id, done = i < curI;
       return { n: done ? '✓' : String(i + 1), label, sub, cur: on ? 'step' : 'false', bg: on ? '#1C1E22' : '#FFFFFF', bd: on ? '#1C1E22' : '#D5D6D2', subFg: on ? '#C9CBD0' : '#4A4F58', fg: on ? '#FFFFFF' : '#1C1E22', bar: on ? '#E0005A' : done ? '#1C1E22' : '#E2E3DF',
         cBg: on ? '#E0005A' : done ? '#1C1E22' : '#FFFFFF', cFg: on || done ? '#FFFFFF' : '#1C1E22', cBd: on ? '#E0005A' : done ? '#1C1E22' : '#8A8F98',
@@ -213,18 +216,18 @@ export default class App extends Logica {
 
     // Hoy
     const act = s.sel || s.hover, am = act && c.by[act];
-    const rel = am && c.hasReq && (this.motor.allReq(am).length || c.kids[act].length) ? { in: new Set(this.motor.allReq(am)), out: new Set(c.kids[act]) } : null;
-    const yearSegs = a => c.mats.concat(semAll).filter(m => m.anio === a).map(m => { const ap = c.ap.has(m.id), owed = !ap && a < s.anio; return { bg: ap ? '#1C1E22' : owed ? '#C2004C' : '#E2E3DF' }; });
-    const yTxt = a => { const ms = c.mats.concat(semAll).filter(m => m.anio === a); return ms.filter(m => c.ap.has(m.id)).length + '/' + ms.length; };
+    const rel = am && c.hasReq && (this.motor.allReq(am).length || c.kids[act].length) ? { in: new Set(this.motor.allReq(am)), out: new Set(c.kids[act]), any: new Map((am.reqAny || []).flatMap(g => g.filter(id => !(am.req || []).includes(id)).map(id => [id, g.length]))) } : null;
+    const yearSegs = a => c.mats.concat(semAll).filter(m => m.anio === a && !libre(m)).map(m => { const ap = c.ap.has(m.id), owed = !ap && a < s.anio; return { bg: ap ? '#1C1E22' : owed ? '#C2004C' : '#E2E3DF' }; });
+    const yTxt = a => { const ms = c.mats.concat(semAll).filter(m => m.anio === a && !libre(m)); return ms.filter(m => c.ap.has(m.id)).length + '/' + ms.length; };
     const yearHeads = [1, 2, 3, 4].map(a => ({ label: a + '° año', cur: a === s.anio, txt: yTxt(a), segs: yearSegs(a), bg: a === s.anio ? '#FCEFF4' : 'transparent' }));
     const lanes = K.LANES.map(([cat, label]) => { const ms = c.mats.filter(m => m.cat === cat);
-      return { label, count: ms.filter(m => c.ap.has(m.id)).length + ' de ' + ms.length, cells: [1, 2, 3, 4].map(a => ({ bg: a === s.anio ? '#FDF7F9' : 'transparent', cards: ms.filter(m => m.anio === a).map(m => this.cardVM(m, c, rel)) })) }; });
+      return { label, count: ms.filter(m => c.ap.has(m.id)).length + ' de ' + ms.length, cells: [1, 2, 3, 4].map(a => ({ bg: a === s.anio ? '#FDF7F9' : 'transparent', cards: ms.filter(m => m.anio === a).map(m => this.cardVM(m, c, rel)) })) }; }).filter(l => l.cells.some(x => x.cards.length));
     const mobLanes = K.LANES.map(([cat, label]) => ({ label, cards: c.mats.filter(m => m.cat === cat && m.anio === s.mYear).map(m => this.cardVM(m, c, null)) })).filter(l => l.cards.length);
     const yearTabs = [1, 2, 3, 4].map(a => ({ label: a + '°', txt: yTxt(a), cur: s.mYear === a, bg: s.mYear === a ? '#1C1E22' : '#FFFFFF', fg: s.mYear === a ? '#FFFFFF' : '#1C1E22', onClick: () => this.setState({ mYear: a }) }));
     const fLanes = semAll.length ? [K.LANES[0], ['seminario', 'Seminarios'], ...K.LANES.slice(1)] : K.LANES;
     const faltaCats = fLanes.map(([cat, label]) => { const ms = cat === 'seminario' ? semAll : c.mats.filter(m => m.cat === cat), h = ms.filter(m => c.ap.has(m.id)).length;
-      return { label, left: ms.length - h, total: ms.length, big: ms.length - h ? String(ms.length - h) : '✓', small: ms.length - h ? 'de ' + ms.length : 'Completo', segs: ms.map((m, i) => ({ bg: i < h ? '#1C1E22' : '#E2E3DF' })) }; });
-    const owedNow = c.pend.filter(m => m.anio < s.anio).sort((a, b) => a.anio - b.anio);
+      return { label, left: ms.length - h, total: ms.length, big: ms.length - h ? String(ms.length - h) : '✓', small: ms.length - h ? 'de ' + ms.length : 'Completo', segs: ms.map((m, i) => ({ bg: i < h ? '#1C1E22' : '#E2E3DF' })) }; }).filter(x => x.total > 0);
+    const owedNow = c.pend.filter(m => !libre(m) && m.anio < s.anio).sort((a, b) => a.anio - b.anio);
 
     let det = {}; const dm = s.sel && c.by[s.sel];
     if (dm) {
@@ -232,9 +235,9 @@ export default class App extends Logica {
       const reqs = [...(dm.reqAny || []).map(g => { const ok = g.some(id => c.ap.has(id)); return { nombre: g.map(id => c.by[id].nombre).join(' o '), glyph: ok ? '✓' : '○', lbl: ok ? 'Aprobada' : 'Una de las dos', onClick: () => this.select(g[0]) }; })].concat((dm.req || []).map(id => { const ok = c.ap.has(id); return { nombre: c.by[id].nombre, glyph: ok ? '✓' : '○', lbl: ok ? 'Aprobada' : 'Por cursar', onClick: () => this.select(id) }; }));
       const meters = dm.cant ? [['talleres aprobados', e.haveT, e.needT], ['materias aprobadas', e.haveN, e.needN]].filter(x => x[2] > 0).map(([lbl, h, n]) => ({ label: n + ' ' + lbl, txt: h >= n ? '✓ Cumplido' : 'Tenés ' + h, fg: h >= n ? '#1C1E22' : '#B0003A', segs: Array.from({ length: n }, (_, i) => ({ bg: i < h ? '#1C1E22' : '#E2E3DF' })) })) : [];
       const habs = c.kids[dm.id].map(id => ({ nombre: c.by[id].nombre, lbl: c.by[id].anio + '° año', onClick: () => this.select(id) }));
-      const owed = !isAp && dm.anio < s.anio;
+      const owed = !isAp && !libre(dm) && dm.anio < s.anio;
       det = Object.assign(this.progOf(dm), { alias: [dm.dictadoComo && 'Se dicta como ' + dm.dictadoComo, c.att[dm.id] && 'Se cursa junto con ' + c.att[dm.id].nombre].filter(Boolean).join(' · '), aliasShow: !!(dm.dictadoComo || c.att[dm.id]) }); Object.assign(det, { nombre: dm.nombre, eyebrow: [K.CAT[dm.cat], dm.anio + '° año', dm.codigo].filter(Boolean).join(' · '),
-        estado: { aprobada: '✓ Aprobada', disponible: dm.anio > s.anio ? '○ Podés adelantarla' : '○ Podés cursarla', bloqueada: '⊘ ' + this.motor.falta(e, c.by) }[st] + (owed ? ' · La debés' : ''),
+        estado: { aprobada: '✓ Aprobada', disponible: dm.anio > s.anio && !(libre(dm) && s.anio >= 2) ? '○ Podrías adelantarla' : '○ Podés cursarla', bloqueada: '⊘ ' + this.motor.falta(e, c.by) }[st] + (owed ? ' · La debés' : ''),
         toggleLbl: isAp ? 'Marcar por cursar' : 'Marcar aprobada', btnBg: isAp ? '#FFFFFF' : '#1C1E22', btnFg: isAp ? '#1C1E22' : '#FFFFFF', btnBd: isAp ? '#C9CBD0' : '#1C1E22',
         onToggle: () => this.setAprob(dm.id, !isAp),
         showNote: dm.cat === 'optativa' && isAp, op: dm.cat === 'optativa' && isAp ? this.optPicker(dm) : null, note: s.notas[dm.id] || '', onNote: ev2 => { const v = String(ev2.target.value).slice(0, 80); this.setState(x => ({ notas: { ...x.notas, [dm.id]: v } })); },
@@ -246,7 +249,8 @@ export default class App extends Logica {
     const tpl0 = this.motor.tpl(c, info0.year, info0.half), ids = this.motor.inscIds(c), idSet = new Set(ids), rec = this.motor.recIds(c), recSet = new Set(rec);
     const sug = this.motor.suggestion(c), edited = !!s.insc && ids.slice().sort().join() !== sug.slice().sort().join();
     const availNow = this.motor.disponibles(c);
-    const yTag = m => m.anio < info0.year ? 'Debés · ' + m.anio + '° año' : m.anio > info0.year ? 'Adelantás · ' + m.anio + '° año' : m.anio + '° año';
+    const ya = m => libre(m) ? Math.max(2, info0.year) : m.anio;
+    const yTag = m => libre(m) ? 'De 2° a 4° año' : m.anio < info0.year ? 'Debés · ' + m.anio + '° año' : m.anio > info0.year ? 'Adelantás · ' + m.anio + '° año' : m.anio + '° año';
     const byCat = {}; ids.forEach(id => (byCat[c.by[id].cat] = byCat[c.by[id].cat] || []).push(id));
     const rows = [];
     K.LANES.forEach(([cat]) => { const have = byCat[cat] || [], n = Math.max(tpl0[cat] || 0, have.length); for (let i = 0; i < n; i++) rows.push({ key: cat + i, cat, id: have[i] || null }); });
@@ -254,14 +258,14 @@ export default class App extends Logica {
       const m = r.id && c.by[r.id], open = s.pick === r.key;
       const swap = nid => this.editInsc(c, cur => { if (r.id) { const i = cur.indexOf(r.id); if (nid) cur[i] = nid; else cur.splice(i, 1); } else if (nid) cur.push(nid); return cur; });
       const opts = availNow.filter(x => x.cat === r.cat && (!idSet.has(x.id) || x.id === r.id));
-      const gdef = [['Debés de años anteriores', x => x.anio < info0.year, '#B0003A'], ['De ' + info0.year + '° año', x => x.anio === info0.year, '#3A3D44'], ['Para adelantar', x => x.anio > info0.year, '#3A3D44']];
+      const gdef = [['Debés de años anteriores', x => ya(x) < info0.year, '#B0003A'], ['De ' + info0.year + '° año', x => ya(x) === info0.year, '#3A3D44'], ['Para adelantar', x => ya(x) > info0.year, '#3A3D44']];
       const offs = r.cat === 'optativa' ? this.motor.ofertas(info0.cal) : null, slotFor = r.id || (opts[0] && opts[0].id);
       const groups = offs ? [{ label: 'Se ofrecen en el ' + this.motor.sLbl(info0.cal), fg: '#3A3D44', opts: offs.map(o => { const on = !!r.id && s.notas[r.id] === o.titulo; return { nombre: o.titulo, sub: o.tema, on, mark: on ? '✓' : '', bg: on ? '#1C1E22' : '#FFFFFF', fg: on ? '#FFFFFF' : '#1C1E22', meta: on ? '#C9CBD0' : '#4A4F58', bd: on ? '#1C1E22' : '#E2E3DF', onClick: () => this.chooseOff(c, r.id, slotFor, o) }; }) }] : gdef.map(([label, f, fg]) => ({ label, fg, opts: opts.filter(f).map(x => { const on = x.id === r.id;
         return { nombre: x.nombre, sub: x.anio + '° año' + (c.att[x.id] ? ' · + ' + c.att[x.id].nombre.replace('Seminario de Profundización Tecnológica', 'Seminario') : '') + (x.cat !== 'taller' && x.codigo ? ' · ' + x.codigo : ''), on, mark: on ? '✓' : '', bg: on ? '#1C1E22' : '#FFFFFF', fg: on ? '#FFFFFF' : '#1C1E22', meta: on ? '#C9CBD0' : '#4A4F58', bd: on ? '#1C1E22' : '#E2E3DF', onClick: () => swap(x.id) }; }) })).filter(g => g.opts.length);
-      const alts = opts.filter(x => x.id !== r.id && !idSet.has(x.id) && !x.ultimo && x.anio <= info0.year).slice(0, 3), altsOff = offs ? offs.filter(o => !(r.id && s.notas[r.id] === o.titulo)).slice(0, 3) : null;
+      const alts = opts.filter(x => x.id !== r.id && !idSet.has(x.id) && !x.ultimo && ya(x) <= info0.year).slice(0, 3), altsOff = offs ? offs.filter(o => !(r.id && s.notas[r.id] === o.titulo)).slice(0, 3) : null;
       const e = m && c.ev[m.id], err = e && !e.ok ? 'No la podés cursar todavía: ' + this.motor.falta(e, c.by).toLowerCase() + '.' : '';
-      const tag = m ? (m.anio < info0.year ? 'Debés · ' + m.anio + '° año' : m.anio > info0.year ? 'Adelantás · ' + m.anio + '° año' : '') : '';
-      const art = r.cat === 'taller' ? 'un taller' : r.cat === 'cf' ? 'una del Ciclo de Fundamentos' : 'una ' + K.CAT[r.cat].toLowerCase();
+      const tag = m && !libre(m) ? (m.anio < info0.year ? 'Debés · ' + m.anio + '° año' : m.anio > info0.year ? 'Adelantás · ' + m.anio + '° año' : '') : '';
+      const art = r.cat === 'taller' ? 'un taller' : r.cat === 'transversal' ? 'un taller transversal' : r.cat === 'cf' ? 'una del Ciclo de Fundamentos' : 'una ' + K.CAT[r.cat].toLowerCase();
       return { code: m && m.codigo ? m.codigo : '', codeShow: !!(m && m.codigo), semShow: !!(m && c.att[m.id]), semName: m && c.att[m.id] ? c.att[m.id].nombre.replace('Seminario de Profundización Tecnológica', 'Seminario') : '', catLbl: K.CAT[r.cat], has: !!m, sub: m ? (offs && s.notas[m.id] ? 'Cuenta como ' + m.nombre : m.dictadoComo ? 'Se dicta como ' + m.dictadoComo : '') : '', subShow: !!m && !!((offs && s.notas[m.id]) || m.dictadoComo), nombre: m ? (offs && s.notas[m.id] ? s.notas[m.id] : m.nombre) : (opts.length ? 'Elegí ' + art : 'No hay disponibles'), nameFg: m ? '#1C1E22' : '#4A4F58',
         tag, tagShow: !!tag, tagBg: m && m.anio < info0.year ? '#C2004C' : '#3A3D44', open, rot: open ? '180deg' : '0deg',
         openLbl: (m ? K.CAT[r.cat] + ': ' + m.nombre + '. Cambiar' : 'Elegir ' + art), onOpen: () => this.setState({ pick: open ? null : r.key }),
@@ -280,7 +284,7 @@ export default class App extends Logica {
     const nBad = items.filter(i => i.t === 'bad').length, nWarn = items.filter(i => i.t === 'warn').length;
     const IC = { ok: ['✓', '#7FD3A0'], warn: ['!', '#FFB547'], bad: ['×', '#FF6B8F'] };
     const chk = { icon: nBad ? '×' : nWarn ? '!' : '✓', iconBg: nBad ? '#FF6B8F' : nWarn ? '#FFB547' : '#7FD3A0',
-      title: info0.cal === s.intSem ? 'Semestre de intercambio' : !ms.length ? (c.pend.length ? 'Todavía no sumaste materias' : '¡Aprobaste todo el plan!') : nBad ? 'Así no se puede' : nWarn ? (nWarn === 1 ? 'Revisá una cosa' : 'Revisá ' + nWarn + ' cosas') : 'Tu inscripción está en orden',
+      title: info0.cal === s.intSem ? 'Semestre de intercambio' : !ms.length ? (c.pend.length ? 'Todavía no sumaste materias' : '¡Aprobaste todo el plan!') : nBad ? 'Inscripción fuera de regla' : nWarn ? (nWarn === 1 ? 'Revisá una cosa' : 'Revisá ' + nWarn + ' cosas') : 'Tu inscripción está en orden',
       items: items.map(i => ({ icon: IC[i.t][0], bg: IC[i.t][1], title: i.title, sub: i.sub || '', subShow: !!i.sub })),
       mail: !!(nBad || nWarn), foot: nBad || nWarn ? 'Para pedir cambios o autorizaciones, escribile a la carrera:' : '' };
 
@@ -300,7 +304,7 @@ export default class App extends Logica {
       if (first && !manual && this._extra) warns.push(this._extra);
       if (!isInt && t2 > 1) warns.push('Para cursar ' + t2 + ' talleres necesitás una excepción de la carrera. Escribí a diseno@udesa.edu.ar.');
       const w2 = ms2.reduce((q, m) => q + 1 + (c.att[m.id] ? 1 : 0), 0);
-      if (!isInt && w2 > R.maxMaterias) warns.push('Más de ' + R.maxMaterias + ' materias no se permite.');
+      if (!isInt && w2 > R.maxMaterias) warns.push('No están permitidas más de ' + R.maxMaterias + ' materias.');
       else if (!isInt && x.k != null && t2 <= 1 && ms2.reduce((q, m) => q + 1 + (c.att[m.id] ? 1 : 0), 0) > this.motor.semNorm(c, x.k, new Set(c.ap), new Set()).cap) warns.push('Lo recomendado son ' + this.motor.semNorm(c, x.k, new Set(c.ap), new Set()).cap + ' materias. Consultalo con la carrera.');
       return Object.assign({ dot: first ? '#E0005A' : isInt ? '#1C1E22' : '#FFFFFF', dotBd: first ? '#E0005A' : '#1C1E22', eyebrow: first ? 'En tu inscripción' : (yOf(x) <= 4 ? yOf(x) + '° año' : 'Después de 4°'), label: this.motor.sLbl(x.cal), full: this.motor.sLbl(x.cal), isInt,
         eyeBg: first ? '#E0005A' : isInt ? '#3A3C43' : '#F0F0EC', eyeFg: first || isInt ? '#FFFFFF' : '#1C1E22',
@@ -341,16 +345,16 @@ export default class App extends Logica {
     const pSet = new Set(ids);
     const pYears = [1, 2, 3, 4].map(a => ({ label: a + '° año', txt: yTxt(a) }));
     const pLanes = K.LANES.map(([cat, label]) => ({ label, cells: [1, 2, 3, 4].map(a => ({ boxes: c.mats.filter(m => m.cat === cat && m.anio === a).map(m => { const ap = c.ap.has(m.id), nx = pSet.has(m.id);
-      return { nombre: m.corto + (s.notas[m.id] ? ' · ' + s.notas[m.id] : ''), bg: ap ? '#1C1E22' : '#FFFFFF', fg: ap ? '#FFFFFF' : '#1C1E22', bd: ap ? '#1C1E22' : nx ? '#E0005A' : '#C9CBD0' }; }) })) }));
+      return { nombre: m.corto + (s.notas[m.id] ? ' · ' + s.notas[m.id] : ''), bg: ap ? '#1C1E22' : '#FFFFFF', fg: ap ? '#FFFFFF' : '#1C1E22', bd: ap ? '#1C1E22' : nx ? '#E0005A' : '#C9CBD0' }; }) })) })).filter(l => l.cells.some(x => x.boxes.length));
     const pSemsAll = pr.sems.filter(x => x.ids.length || x.isInt).slice(0, 7);
     const pSemsTitle = pSemsAll.filter(x => !x.isInt).length === 1 ? 'Último semestre' : 'Próximos semestres';
     const pSems = pSemsAll.map((x, i) => { const yr = x.cal.split('-')[0], prevYr = i ? pSemsAll[i - 1].cal.split('-')[0] : yr; return { label: this.motor.sLbl(x.cal), isInt: !!x.isInt, ml: i === 0 ? '0' : yr !== prevYr ? '18px' : '6px', items: x.ids.map(id => (c.by[id].cat === 'optativa' && s.notas[id]) || c.by[id].corto), bg: x.isInt ? '#1C1E22' : i === 0 ? '#FCEFF4' : '#F4F4F1', fg: x.isInt ? '#FFFFFF' : '#1C1E22', itemBg: x.isInt ? '#2E3036' : '#FFFFFF' }; });
 
-    const lineCol = { in: '#1C1E22', out: '#E0005A' };
+    const lineCol = { in: '#1C1E22', any: '#1C1E22', out: '#E0005A' };
     const linesEl = React.createElement('svg', { 'aria-hidden': 'true', width: '100%', height: '100%', style: { position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1, overflow: 'visible' } },
       s.lines.map((l, i) => React.createElement('g', { key: i },
         React.createElement('path', { d: l.d, fill: 'none', stroke: '#FFFFFF', strokeWidth: 6, strokeLinecap: 'round' }),
-        React.createElement('path', { d: l.d, fill: 'none', stroke: lineCol[l.k], strokeWidth: 2.25, strokeLinecap: 'round' }),
+        React.createElement('path', { d: l.d, fill: 'none', stroke: lineCol[l.k], strokeWidth: 2.25, strokeLinecap: 'round', strokeDasharray: l.k === 'any' ? '2 5' : undefined }),
         React.createElement('circle', { cx: l.x, cy: l.y, r: 3.5, fill: lineCol[l.k] }))));
 
     const detRail = !!dm && wide && s.view === 'hoy';
@@ -364,20 +368,24 @@ export default class App extends Logica {
       glyph: [{ bg: '#FF0064', sh: 'none', sc: 1 }, ...[0, 1, 2].map(i => { const ci = ['hoy', 'insc', 'proy'].indexOf(s.view); return i < ci ? { bg: '#FFFFFF', sh: 'none', sc: 1 } : i === ci ? { bg: 'transparent', sh: 'inset 0 0 0 2px #FFFFFF', sc: 1 } : { bg: '#3A3C43', sh: 'none', sc: .78 }; })],
       steps, vHoy: s.view === 'hoy', vInsc: s.view === 'insc', vProy: s.view === 'proy',
       onReset: () => this.setState({ modal: 'reset' }), onExport: () => this.setState({ modal: 'export' }),
-      yearHeads, lanes, mobLanes, yearTabs, legendBase: !rel || mob, legendRel: !!rel && !mob, actNombre: am ? am.corto : '',
+      yearHeads, lanes, mobLanes, yearTabs, legendBase: !rel || mob, legendRel: !!rel && !mob, legendAny: !!rel && rel.any.size > 0, actNombre: am ? am.corto : '',
       gridRef: this.gridRef, onGridLeave: () => { if (this.state.hover) this.setState({ hover: null }); }, linesEl,
       trk: (() => {
         const T = {}; const sugIds = [].concat(this.motor.suggestion(c) || []); sugIds.forEach(id => { const m = c.by[id]; if (m) T[m.cat] = (T[m.cat] || 0) + 1; }); const pk = [...this._pick].map(id => c.by[id]).filter(Boolean), cnt = {}; pk.forEach(m => cnt[m.cat] = (cnt[m.cat] || 0) + 1);
-        const NM = { taller: ['Taller', 'Talleres'], obligatoria: ['Obligatoria', 'Obligatorias'], optativa: ['Optativa', 'Optativas'], cf: ['Ciclo de Fundamentos', 'Ciclo de Fundamentos'] };
+        const NM = { taller: ['Taller', 'Talleres'], transversal: ['Taller transversal', 'Talleres transversales'], obligatoria: ['Obligatoria', 'Obligatorias'], optativa: ['Optativa', 'Optativas'], cf: ['Ciclo de Fundamentos', 'Ciclo de Fundamentos'] };
         const semTpl = sugIds.filter(id => c.att[id]).length, semHave = pk.filter(m => c.att[m.id]).length;
         if (semTpl || semHave) { T.seminario = semTpl; cnt.seminario = semHave; NM.seminario = ['Seminario', 'Seminarios']; }
-        const cats = ['taller', ...(semTpl || semHave ? ['seminario'] : []), 'obligatoria', 'optativa', 'cf'].filter(cat => (T[cat] || 0) > 0 || cnt[cat]).map(cat => { const n = T[cat] || 0, have = cnt[cat] || 0, slots = [];
+        const cats = ['taller', ...(semTpl || semHave ? ['seminario'] : []), 'transversal', 'obligatoria', 'optativa', 'cf'].filter(cat => (T[cat] || 0) > 0 || cnt[cat]).map(cat => { const n = T[cat] || 0, have = cnt[cat] || 0, slots = [];
           for (let i = 0; i < Math.max(n, have); i++) { const f = i < have, extra = i >= n; slots.push({ bg: f ? (extra ? '#FFB547' : '#E0005A') : 'transparent', sh: f ? 'none' : 'inset 0 0 0 1.5px #5E636B', mark: f ? (extra ? '+' : '✓') : '', sc: f ? 1 : .92 }); }
           const lack = Math.max(0, n - have), over = Math.max(0, have - n);
           return { label: NM[cat][n > 1 || have > 1 ? 1 : 0], slots, lack, sub: lack ? (cat === 'seminario' ? 'Viene con el taller' : lack === 1 ? 'Lugar libre' : lack + ' lugares libres') : over ? (n ? over + ' de más' : 'No va este semestre') : '✓ Cubierto', subFg: lack ? '#C9CBD0' : over ? '#FFB547' : '#7FD3A0', aria: NM[cat][1] + ': ' + have + ' de ' + n }; });
-        const lackT = cats.reduce((a, x) => a + (x.label.startsWith('Seminario') ? 0 : x.lack), 0), overT = cats.some(x => x.subFg === '#FFB547');;
-        return { isInt: isIntNow, cats: isIntNow ? [] : cats, count: isIntNow ? '' : this.motor.pl(pk.reduce((q, m) => q + 1 + (c.att[m.id] ? 1 : 0), 0), 'materia'), icon: isIntNow ? '✓' : lackT ? '…' : overT ? '!' : '✓', iconBg: lackT ? '#C9CBD0' : overT ? '#FFB547' : '#7FD3A0',
-          status: isIntNow ? 'Semestre de intercambio' : lackT ? (lackT === 1 ? 'Todavía podés sumar una más.' : 'Todavía podés sumar ' + lackT + ' más.') : overT ? 'Tenés más de lo recomendado.' : 'Están todos los lugares cubiertos.' };
+        // El estado sale del mismo chequeo que el paso 2, así los dos pasos dicen lo mismo
+        const overT = cats.some(x => x.subFg === '#FFB547'), top = items.find(i => i.t === 'bad') || items.find(i => i.t === 'warn'), sumar = items.find(i => i.sub && i.sub.startsWith('Todavía podés sumar'));
+        const txt = i => i.title + '.' + (i.sub ? ' ' + i.sub : '');
+        const [icon, iconBg, status] = isIntNow ? ['✓', '#7FD3A0', 'Semestre de intercambio'] : top ? (top.t === 'bad' ? ['×', '#FF6B8F', 'Inscripción fuera de regla. ' + txt(top)] : ['!', '#FFB547', txt(top)]) : sumar ? ['…', '#C9CBD0', sumar.sub] : overT ? ['!', '#FFB547', 'Tenés más de lo recomendado.'] : ['✓', '#7FD3A0', 'Están todos los lugares cubiertos.'];
+        return { isInt: isIntNow, cats: isIntNow ? [] : cats, count: isIntNow ? '' : this.motor.pl(pk.reduce((q, m) => q + 1 + (c.att[m.id] ? 1 : 0), 0), 'materia'), icon, iconBg, status,
+          // En la barra de abajo (celular y tablet) va solo el título: el detalle está en el paso 2
+          statusCorto: !isIntNow && top ? (top.t === 'bad' ? 'Inscripción fuera de regla. ' : '') + top.title + '.' : status };
       })(),
       trkRail: wide && !detRail,
       hoySub: isIntNow ? 'Este semestre te vas de intercambio.' : 'Arrancás con una propuesta que cuida tus correlativas: tocá cualquier materia para sumarla o sacarla.',

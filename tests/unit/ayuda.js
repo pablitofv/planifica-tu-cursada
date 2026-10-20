@@ -25,6 +25,7 @@ export function violaciones(M, c, sems, rec) {
     if (x.isInt) { x.ids.forEach(id => set.add(id)); return; }
     const ms = x.ids.map(id => c.by[id]);
     if (ms.filter(m => m.cat === 'taller').length > R.maxTalleres) out.push(`semestre ${x.cal}: más de ${R.maxTalleres} taller`);
+    if (ms.filter(m => m.cat === 'transversal').length > R.maxTransversales) out.push(`semestre ${x.cal}: más de ${R.maxTransversales} transversal`);
     if (peso(c, x.ids) > R.maxMaterias) out.push(`semestre ${x.cal}: más de ${R.maxMaterias} materias`);
     ms.forEach(m => { const e = M.evalRule(m, set, c.by); if (!e.ok) out.push(`${m.id} en ${x.cal} sin correlativas`); });
     ms.forEach(m => { if (visto.has(m.id)) out.push(`${m.id} repetida`); visto.set(m.id, i); set.add(m.id); if (c.att[m.id]) set.add(c.att[m.id].id); });

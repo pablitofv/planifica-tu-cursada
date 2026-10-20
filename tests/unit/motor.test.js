@@ -178,6 +178,33 @@ describe('autoProject, planTail y balance', () => {
   });
 });
 
+describe('talleres transversales (Plan 2027)', () => {
+  const tr = (c, lista) => lista.filter(id => c.by[id].cat === 'transversal');
+  it('la propuesta pone uno por semestre y los tres quedan ubicados, uno por año', () => {
+    const M = motor(estado({ planId: '2027', anio: 1 })), c = M.build(), sems = M.autoProject(c, null, []);
+    sems.forEach(x => expect(tr(c, x.ids).length).toBeLessThanOrEqual(1));
+    const dondeVan = sems.filter(x => tr(c, x.ids).length).map(x => x.year);
+    expect(dondeVan).toEqual([2, 3, 4]);
+  });
+  it('no ocupan el lugar del taller: van junto con uno', () => {
+    // En la segunda mitad de 2° año la propuesta pone el taller y el transversal juntos
+    const M = motor(estado({ planId: '2027', anio: 2, aprob: anteriores('2027', 2) }), '2027-05-01T12:00:00'), c = M.build(), s0 = M.suggestion(c);
+    expect(s0.map(id => c.by[id].cat)).toEqual(expect.arrayContaining(['taller', 'transversal']));
+  });
+  it('dos en el mismo semestre: avisa sin prohibir', () => {
+    const M = motor(estado({ planId: '2027', anio: 2, aprob: anteriores('2027', 2), insc: ['t-sustentabilidad', 'p-transversal-a', 'p-transversal-b'] })), r = M.chequeo(M.build());
+    expect(r.items.filter(i => i.t === 'bad')).toEqual([]);
+    expect(r.items).toContainEqual({ t: 'warn', title: '2 talleres transversales', sub: 'Lo recomendado es uno por semestre. Si querés cursar dos, consultalo con la carrera.' });
+  });
+  it('se cursan en cualquier año: nunca son "Debés" ni "Adelantás"', () => {
+    const aprob = anteriores('2027', 4); delete aprob['p-transversal-a']; delete aprob['p-transversal-b'];
+    const M = motor(estado({ planId: '2027', anio: 4, aprob, insc: ['t-entornos', 'p-transversal-c'] })), r = M.chequeo(M.build());
+    expect(r.items.map(i => i.title).join(' | ')).not.toMatch(/Transversal|Adelantás|Falta/);
+    const M2 = motor(estado({ planId: '2027', anio: 2, aprob: anteriores('2027', 2), insc: ['t-sustentabilidad', 'p-transversal-c', 'o-informacion'] })), r2 = M2.chequeo(M2.build());
+    expect(r2.items.some(i => i.title.startsWith('Adelantás'))).toBe(false);
+  });
+});
+
 describe('verificador de invariantes (el que usa la simulación)', () => {
   it('detecta cada tipo de problema', () => {
     const M = motor(estado({ planId: '2023', anio: 4, aprob: anteriores('2023', 4) })), c = M.build();
@@ -260,12 +287,27 @@ describe('chequeo de inscripción', () => {
   it('una materia sin correlativas', () => {
     const aprob = { ...base.aprob }; delete aprob.k240;
     const M = motor(estado({ ...base, aprob, insc: ['k330', 'k341'] })), r = M.chequeo(M.build());
-    expect(r.items[0]).toEqual({ t: 'bad', title: 'Taller de Mercado, todavía no', sub: 'Te faltan correlativas.' });
+    expect(r.items[0]).toEqual({ t: 'bad', title: 'Taller de Mercado, todavía no', sub: 'Te falta aprobar Pensamiento Proyectual.' });
   });
   it('reclama lo adeudado que entraría', () => {
     const aprob = { ...base.aprob }; delete aprob.e010;
     const M = motor(estado({ ...base, aprob, insc: ['k330', 'k341', 'k441', 'k343'] })), r = M.chequeo(M.build());
     expect(r.items).toContainEqual({ t: 'warn', title: 'Falta Economía I', sub: 'Es de 1° año. Priorizala para no trabarte después.' });
+  });
+  // Los dos casos que mandó Pablo: 2° año del Plan 2023 con 1° año, Sustentabilidad, Pensamiento Proyectual, Escritura y Electiva de Arte aprobados
+  const caso = insc => estado({ planId: '2023', anio: 2, aprob: { ...anteriores('2023', 2), k231: true, k240: true, h209: true, 'cf-arte': true }, insc });
+  it('la propuesta de ese caso no avisa nada', () => {
+    const M = motor(caso(null)), r = M.chequeo(M.build());
+    expect(r.items.filter(i => i.t !== 'ok')).toEqual([]);
+  });
+  it('adelantar un taller de 3° con uno de 2° pendiente avisa y sugiere consultarlo', () => {
+    const M = motor(caso(['k330', 'cc100', 'cf-psicologia', 'cf-ciencias'])), r = M.chequeo(M.build());
+    expect(r.items).toContainEqual({ t: 'warn', title: 'Adelantás Taller de Mercado', sub: 'Te queda Taller de Prospectiva, de 2° año. Conviene priorizarla. Si igual querés adelantarla, consultalo con la carrera.' });
+  });
+  it('dejar una de 2° por una obligatoria de 3° avisa lo mismo', () => {
+    const M = motor(caso(['k230', 'k341', 'cf-psicologia', 'cf-ciencias'])), r = M.chequeo(M.build());
+    expect(r.items).toContainEqual({ t: 'warn', title: 'Adelantás Etnografía y Diseño', sub: 'Te queda Teoría Sociológica, de 2° año. Conviene priorizarla. Si igual querés adelantarla, consultalo con la carrera.' });
+    expect(r.items.some(i => (i.sub || '').startsWith('Todavía podés sumar'))).toBe(false);
   });
   it('avisa si la inscripción suma un semestre', () => {
     const M = motor(estado({ planId: '2027', anio: 1, insc: ['o-materia'] })), r = M.chequeo(M.build());

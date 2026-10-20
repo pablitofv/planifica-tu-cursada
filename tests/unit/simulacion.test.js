@@ -1,7 +1,7 @@
 // Simulación de 1.000 estudiantes al azar (semilla fija) contra las invariantes del CLAUDE.md:
 // 0 materias sin ubicar, 0 correlativas rotas, 0 semestres con 2 talleres o más de 5 materias y
-// 0 casos con Trabajo de Graduación fuera del último semestre. Además, la propuesta del semestre
-// actual nunca da un chequeo en rojo.
+// 0 casos con Trabajo de Graduación fuera del último semestre, y nunca dos talleres transversales juntos. Además, la propuesta del semestre
+// actual nunca da un chequeo en rojo ni avisa que adelanta materias.
 import { describe, it, expect } from 'vitest';
 import { DATOS, estado, motor, violaciones } from './ayuda.js';
 
@@ -34,11 +34,11 @@ function generar(r) {
       for (let i = 0, n = Math.floor(r() * 3); i < n && pool.length; i++) est.intRec[pool.splice(Math.floor(r() * pool.length), 1)[0].id] = true;
     }
   }
-  // Algunos editan la inscripción: un taller como mucho y hasta la carga máxima
+  // Algunos editan la inscripción: un taller y un transversal como mucho, y hasta la carga máxima
   let editada = false;
   if (r() < .2) {
-    const disp = M.disponibles(c).filter(m => !m.ultimo), insc = []; let w = 0, t = 0;
-    disp.sort(() => r() - .5).forEach(m => { const wm = 1 + (c.att[m.id] ? 1 : 0); if (w + wm <= 5 && !(m.cat === 'taller' && t >= 1) && r() < .6) { insc.push(m.id); w += wm; if (m.cat === 'taller') t++; } });
+    const disp = M.disponibles(c).filter(m => !m.ultimo), insc = []; let w = 0, t = 0, tr = 0;
+    disp.sort(() => r() - .5).forEach(m => { const wm = 1 + (c.att[m.id] ? 1 : 0); if (w + wm <= 5 && !(m.cat === 'taller' && t >= 1) && !(m.cat === 'transversal' && tr >= 1) && r() < .6) { insc.push(m.id); w += wm; if (m.cat === 'taller') t++; if (m.cat === 'transversal') tr++; } });
     est.insc = insc; editada = true;
   }
   return { est, dia, editada };
@@ -55,6 +55,8 @@ describe(`simulación de ${CASOS} casos`, () => {
       const s0 = sems[0];
       if (!s0.isInt && s0.ids.join() !== M.suggestion(c).join()) v.push('el semestre actual no es la sugerencia');
       if (M.chequeo(c).items.some(x => x.t === 'bad')) v.push('la propuesta da un chequeo en rojo');
+      const adel = M.chequeo(c).items.find(x => x.title.startsWith('Adelantás'));
+      if (adel) v.push('la propuesta avisa que adelanta: ' + adel.title + ' / ' + adel.sub);
     }
     resultados.push({ caso: i, plan: est.planId, anio: est.anio, dia: dia.toISOString().slice(0, 10), v });
   }
@@ -67,6 +69,7 @@ describe(`simulación de ${CASOS} casos`, () => {
   it('0 materias sin ubicar', () => expect(cuenta('sin ubicar')).toBe(0));
   it('0 correlativas rotas', () => expect(cuenta('sin correlativas')).toBe(0));
   it('0 semestres con 2 talleres o más de 5 materias', () => expect(cuenta('taller') + cuenta('materias')).toBe(0));
+  it('0 semestres con más de un taller transversal', () => expect(cuenta('transversal')).toBe(0));
   it('0 casos con Trabajo de Graduación fuera del último semestre', () => expect(cuenta('último semestre')).toBe(0));
   it('sin materias repetidas, y la propuesta coincide con el semestre actual y nunca da rojo', () => {
     expect(conProblemas.slice(0, 5)).toEqual([]);

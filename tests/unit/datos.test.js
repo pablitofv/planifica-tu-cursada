@@ -40,6 +40,11 @@ describe('datos/carrera.json', () => {
     expect(by.k430).toMatchObject({ nombre: 'Taller de Portafolio', dictadoComo: 'Taller de Sistemas Inteligentes' });
     expect(by.k342.dictadoComo).toBe('Entrepreneurship');
   });
+  it('talleres transversales: categoría propia, solo en 2027 y uno por semestre', () => {
+    expect(DATOS.planes['2027'].materias.filter(m => m.cat === 'transversal').map(m => [m.id, m.anio])).toEqual([['p-transversal-a', 2], ['p-transversal-b', 3], ['p-transversal-c', 4]]);
+    expect(DATOS.planes['2023'].materias.some(m => m.cat === 'transversal')).toBe(false);
+    expect(DATOS.reglas.maxTransversales).toBe(1);
+  });
   it('un solo Trabajo de Graduación por plan', () => {
     for (const P of Object.values(DATOS.planes)) expect(P.materias.filter(m => m.ultimo)).toHaveLength(1);
   });
