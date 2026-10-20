@@ -703,9 +703,12 @@ export default function Vista({ v }) {
                         <span style={{ fontSize: "15px", color: "#C9CBD0" }}>Lo cambiás en Próximos semestres.</span>
                       </div>
                     ) : null}
+                    {v.inscCuentaShow ? (
+                      <p role="status" style={{ margin: "0", fontSize: "15px", lineHeight: "1.4", color: "#3A3D44" }}><strong style={{ fontWeight: "900", color: "#1C1E22" }}>{v.inscCuenta.n}</strong>{v.inscCuenta.resto}</p>
+                    ) : null}
                     <ol style={{ listStyle: "none", margin: "0", padding: "0", display: "flex", flexDirection: "column", gap: "10px" }}>
                       {v.rows.map((r, i) => (
-                        <li key={i} style={{ display: "flex", flexDirection: "column", background: "#FFFFFF", borderRadius: "14px", boxShadow: `${r.sh}`, overflow: "hidden" }}>
+                        <li key={i} style={{ display: "flex", flexDirection: "column", background: `${r.bg}`, borderRadius: "14px", boxShadow: `${r.sh}`, outline: `${r.ol}`, outlineOffset: "-1.5px", overflow: "hidden" }}>
                           <div style={{ display: "flex", gap: "8px", alignItems: "center", padding: "14px 10px 14px 20px" }}>
                             <button className="fo11" onClick={r.onOpen} aria-expanded={r.open} aria-label={r.openLbl} style={{ all: "unset", cursor: "pointer", flex: "1", minWidth: "0", display: "flex", flexDirection: "column", gap: "6px", padding: "2px 0" }}>
                               <span style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
@@ -730,6 +733,7 @@ export default function Vista({ v }) {
                                 <span style={{ alignSelf: "flex-start", display: "flex", alignItems: "center", gap: "8px", marginTop: "2px", padding: "7px 12px 7px 8px", borderRadius: "8px", background: "#F0F0EC", boxShadow: "inset 0 0 0 1px #D5D6D2" }}>
                                   <span aria-hidden="true" style={{ flex: "none", width: "18px", height: "18px", borderRadius: "50%", background: "#1C1E22", color: "#F0F0EC", fontSize: "13px", fontWeight: "900", lineHeight: "1", display: "flex", alignItems: "center", justifyContent: "center" }}>+</span>
                                   <span style={{ fontSize: "15px", fontWeight: "900", lineHeight: "1.2" }}>{r.semName}</span>
+                                  <span style={{ fontSize: "12.5px", fontWeight: "500", color: "#4A4F58" }}>Cuenta como materia</span>
                                 </span>
                               ) : null}
                             </button>

@@ -201,6 +201,33 @@ test('el Plan 2023 no tiene fila de transversales', async ({ page }) => {
   await expect(page.getByRole('group', { name: 'Talleres transversales' })).toHaveCount(0);
 });
 
+// 2° año del Plan 2023 con Prospectiva (y su seminario), Escritura y Psicología: 4 materias y un lugar libre
+const CUATRO = { plan: '2023', anio: 2, aprobadas: ['k030', 'k031', 'c020', 'e010', 'a016', 'cf-historia', 'cf-literatura', 'cf-filosofia', 'k231', 'k240', 'cf-arte', 'cc100'], inscripcion: ['k230', 'h209', 'cf-psicologia'] };
+
+test('inscripción: el total cuenta el seminario y el lugar libre se ve vacío', async ({ page }) => {
+  await abrir(page);
+  await abrirArchivo(page, CUATRO);
+  await page.getByRole('button', { name: /Inscripción/ }).first().click();
+  await expect(page.getByRole('status').filter({ hasText: '4 materias, contando el Seminario III · 1 lugar libre' })).toBeVisible();
+  await expect(page.getByText('Cuenta como materia')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Elegir una del Ciclo de Fundamentos' })).toContainText('Lugar libre');
+  await expect(page.getByText('Contando el Seminario III. Todavía podés sumar una más.')).toBeVisible();
+});
+
+test('intercambio con el plan armado a mano: corre los semestres y no pierde materias', async ({ page }) => {
+  await abrir(page);
+  await abrirArchivo(page, CUATRO);
+  await page.getByRole('button', { name: /Próximos semestres|Semestres/ }).first().click();
+  await page.getByRole('button', { name: /Agregar semestre/ }).click();
+  await page.getByRole('button', { name: /Quitar el/ }).first().click();
+  await expect(page.getByRole('button', { name: /Reordenar automáticamente/ })).toBeVisible();
+  const ultimo = page.getByRole('radio', { name: /1° semestre 2029 · 4° año/ });
+  await ultimo.click();
+  await expect(ultimo).toHaveAttribute('aria-checked', 'true');
+  await expect(page.getByText(/^Sin semestre/)).toHaveCount(0);
+  await expect(page.getByText('Trabajo de Graduación', { exact: true }).first()).toBeVisible();
+});
+
 test('un archivo de un semestre que ya pasó avisa qué cambió', async ({ page }) => {
   await abrir(page);
   const archivo = { version: 2, plan: '2023', anio: 3, inscripcionSemestre: '2026-2', aprobadas: ['k030', 'k031'], inscripcion: ['k230'], semestres: { k231: '2027-1', c020: '2027-2' }, cantidadSemestres: 3 };

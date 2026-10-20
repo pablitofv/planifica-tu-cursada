@@ -267,10 +267,12 @@ export default class App extends Logica {
       const tag = m && !libre(m) ? (m.anio < info0.year ? 'Debés · ' + m.anio + '° año' : m.anio > info0.year ? 'Adelantás · ' + m.anio + '° año' : '') : '';
       const art = r.cat === 'taller' ? 'un taller' : r.cat === 'transversal' ? 'un taller transversal' : r.cat === 'cf' ? 'una del Ciclo de Fundamentos' : 'una ' + K.CAT[r.cat].toLowerCase();
       return { code: m && m.codigo ? m.codigo : '', codeShow: !!(m && m.codigo), semShow: !!(m && c.att[m.id]), semName: m && c.att[m.id] ? c.att[m.id].nombre.replace('Seminario de Profundización Tecnológica', 'Seminario') : '', catLbl: K.CAT[r.cat], has: !!m, sub: m ? (offs && s.notas[m.id] ? 'Cuenta como ' + m.nombre : m.dictadoComo ? 'Se dicta como ' + m.dictadoComo : '') : '', subShow: !!m && !!((offs && s.notas[m.id]) || m.dictadoComo), nombre: m ? (offs && s.notas[m.id] ? s.notas[m.id] : m.nombre) : (opts.length ? 'Elegí ' + art : 'No hay disponibles'), nameFg: m ? '#1C1E22' : '#4A4F58',
-        tag, tagShow: !!tag, tagBg: m && m.anio < info0.year ? '#C2004C' : '#3A3D44', open, rot: open ? '180deg' : '0deg',
+        tag: m ? tag : 'Lugar libre', tagShow: !m || !!tag, tagBg: !m ? '#5E636B' : m.anio < info0.year ? '#C2004C' : '#3A3D44', open, rot: open ? '180deg' : '0deg',
         openLbl: (m ? K.CAT[r.cat] + ': ' + m.nombre + '. Cambiar' : 'Elegir ' + art), onOpen: () => this.setState({ pick: open ? null : r.key }),
         onRemove: () => swap(null), rmLbl: m ? 'Quitar ' + m.nombre : '', groups, none: !groups.length,
-        err, errShow: !!err, sh: err ? '0 0 0 2px #B0003A' : open ? '0 0 0 2px #1C1E22, 0 8px 24px rgba(22,23,26,.10)' : m ? 'none' : '0 0 0 1.5px #C9CBD0',
+        err, errShow: !!err, sh: err ? '0 0 0 2px #B0003A' : open ? '0 0 0 2px #1C1E22, 0 8px 24px rgba(22,23,26,.10)' : 'none',
+        // Un lugar sin materia se ve vacío: borde punteado, sin fondo y con el tag Lugar libre
+        bg: m || open ? '#FFFFFF' : 'transparent', ol: m || open || err ? 'none' : '1.5px dashed #8A8F98',
         altsShow: !open && (altsOff ? altsOff.length : alts.length) > 0, altsLbl: altsOff ? 'Disponibles este semestre:' : m ? 'Alternativas:' : 'Podés tomar:', alts: altsOff ? altsOff.map(o => ({ nombre: o.titulo, aria: 'Elegir ' + o.titulo, onClick: () => this.chooseOff(c, r.id, slotFor, o) })) : alts.map(x => ({ nombre: x.corto + (c.att[x.id] ? ' + ' + c.att[x.id].nombre.replace('Seminario de Profundización Tecnológica', 'Seminario') : ''), aria: (m ? 'Cambiar por ' : 'Elegir ') + x.nombre, onClick: () => swap(x.id) })) };
     });
     const addOpen = s.pick === 'add', addPool = availNow.filter(m => !idSet.has(m.id));
@@ -331,7 +333,7 @@ export default class App extends Logica {
     const intCands = [];
     for (let k = 0; k < 10; k++) { const x = this.motor.semAt(k); if (R.intercambio.some(([y, h]) => x.yearReal === y && x.half === h)) intCands.push(x); }
     const intOpts = [{ label: 'No', cal: null }, ...intCands.map(x => ({ label: this.motor.sLbl(x.cal) + ' · ' + x.yearReal + '° año', cal: x.cal }))].map(o => { const on = (s.intSem || null) === o.cal;
-      return { label: o.label, on, tab: on ? 0 : -1, bg: on ? '#1C1E22' : '#FFFFFF', fg: on ? '#FFFFFF' : '#1C1E22', bd: on ? '#1C1E22' : '#C9CBD0', onClick: () => this.setState(x => { const plan = x.plan ? { ...x.plan } : null; if (plan && o.cal) Object.keys(plan).forEach(k => { if (plan[k] === o.cal) delete plan[k]; }); return { intSem: o.cal, plan, insc: o.cal && o.cal === info0.cal ? null : x.insc }; }) }; });
+      return { label: o.label, on, tab: on ? 0 : -1, bg: on ? '#1C1E22' : '#FFFFFF', fg: on ? '#FFFFFF' : '#1C1E22', bd: on ? '#1C1E22' : '#C9CBD0', onClick: () => this.setState(this.motor.conIntercambio(this.motor.build(), o.cal)) }; });
     const recOptN = rec.filter(id => c.by[id].cat === 'optativa').length;
     const recSel = rec.map(id => ({ nombre: c.by[id].corto, rmLbl: 'Quitar ' + c.by[id].nombre, onRemove: () => this.setState(x => { const intRec = { ...x.intRec }; delete intRec[id]; return { intRec }; }) }));
     const recPool = c.pend.filter(m => !recSet.has(m.id));
@@ -380,7 +382,7 @@ export default class App extends Logica {
           const lack = Math.max(0, n - have), over = Math.max(0, have - n);
           return { label: NM[cat][n > 1 || have > 1 ? 1 : 0], slots, lack, sub: lack ? (cat === 'seminario' ? 'Viene con el taller' : lack === 1 ? 'Lugar libre' : lack + ' lugares libres') : over ? (n ? over + ' de más' : 'No va este semestre') : '✓ Cubierto', subFg: lack ? '#C9CBD0' : over ? '#FFB547' : '#7FD3A0', aria: NM[cat][1] + ': ' + have + ' de ' + n }; });
         // El estado sale del mismo chequeo que el paso 2, así los dos pasos dicen lo mismo
-        const overT = cats.some(x => x.subFg === '#FFB547'), top = items.find(i => i.t === 'bad') || items.find(i => i.t === 'warn'), sumar = items.find(i => i.sub && i.sub.startsWith('Todavía podés sumar'));
+        const overT = cats.some(x => x.subFg === '#FFB547'), top = items.find(i => i.t === 'bad') || items.find(i => i.t === 'warn'), sumar = items.find(i => i.sub && i.sub.includes('Todavía podés sumar'));
         const txt = i => i.title + '.' + (i.sub ? ' ' + i.sub : '');
         const [icon, iconBg, status] = isIntNow ? ['✓', '#7FD3A0', 'Semestre de intercambio'] : top ? (top.t === 'bad' ? ['×', '#FF6B8F', 'Inscripción fuera de regla. ' + txt(top)] : ['!', '#FFB547', txt(top)]) : sumar ? ['…', '#C9CBD0', sumar.sub] : overT ? ['!', '#FFB547', 'Tenés más de lo recomendado.'] : ['✓', '#7FD3A0', 'Están todos los lugares cubiertos.'];
         return { isInt: isIntNow, cats: isIntNow ? [] : cats, count: isIntNow ? '' : this.motor.pl(pk.reduce((q, m) => q + 1 + (c.att[m.id] ? 1 : 0), 0), 'materia'), icon, iconBg, status,
@@ -395,7 +397,8 @@ export default class App extends Logica {
       goInsc: () => this.setState({ view: 'insc', sel: null, hover: null }), goProy: () => this.setState({ view: 'proy', pick: null }),
       inscSem: this.motor.sLbl(info0.cal), inscFecha: this.motor.fechaCambios(info0.cal), inscFechaShow: !!this.motor.fechaCambios(info0.cal), inscYear: info0.yearReal <= 4 ? info0.yearReal + '° año' : 'Lo que te queda',
       inscSub: edited ? 'Si algo no coincide con lo que te asignó el Departamento de Alumnos, cambialo acá para chequearlo.' : 'Compará con lo que te asignó el Departamento de Alumnos y cambiá lo que sea distinto para chequearlo.',
-      inscIsInt: info0.cal === s.intSem, rows: info0.cal === s.intSem ? [] : rowVMs, addShow: addPool.length > 0 && info0.cal !== s.intSem, add,
+      inscIsInt: info0.cal === s.intSem, rows: info0.cal === s.intSem ? [] : rowVMs, inscCuentaShow: info0.cal !== s.intSem && rowVMs.length > 0, inscCuenta: (() => { const nW = ids.reduce((a, id) => a + 1 + (c.att[id] ? 1 : 0), 0), semis = ids.filter(id => c.att[id]).map(id => 'el ' + c.att[id].nombre.replace('Seminario de Profundización Tecnológica', 'Seminario')), libres = rowVMs.filter(r => !r.has).length;
+        return { n: this.motor.pl(nW, 'materia'), resto: (semis.length ? ', contando ' + this.motor.join(semis) : '') + (libres ? ' · ' + (libres === 1 ? '1 lugar libre' : libres + ' lugares libres') : '') }; })(), addShow: addPool.length > 0 && info0.cal !== s.intSem, add,
       edited, onRestore: () => this.setState({ insc: null, pick: null }), chk,
       manual, onResetPlan: () => this.setState({ plan: null, semCount: 0 }), proyRange, proyTitle: filled.length === 1 ? 'Último semestre' : 'Próximos semestres', proySame: filled.length === 1, proyRangeShow: filled.length !== 1, proyN: String(filled.length), proyNLbl: filled.length === 1 ? 'semestre' : 'semestres', proyA: semParts(cals[0]), proyB: semParts(lastCal), proyMetaShow: proyStats.length > 0, proySub, proy, poolShow: pr.unplaced.length > 0, pool,
       onAddSem: () => { const M = this.motor.materialize(c); this.setState({ plan: M.plan, insc: M.insc, semCount: M.semCount + 1 }); },

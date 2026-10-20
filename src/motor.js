@@ -250,6 +250,17 @@ export class Motor {
     if (!s.plan) pr.sems.forEach(x => { if (x.k > 0 && !x.isInt) x.ids.forEach(id => plan[id] = x.cal); });
     return { plan, insc: this.inscIds(c).slice(), semCount: Math.max(s.semCount, pr.sems.length) };
   }
+  // Elegir el semestre de intercambio. Con un plan armado a mano, lo planeado desde ese semestre se corre uno para
+  // adelante (y si es el actual, la inscripción pasa al siguiente): nada queda sin semestre. Sin plan a mano, la
+  // proyección automática ya lo acomoda. Devuelve los cambios de estado.
+  conIntercambio(c, cal) {
+    const s = this.estado;
+    if (!s.plan || !cal || cal === s.intSem) return { intSem: cal, plan: s.plan ? { ...s.plan } : null, insc: cal && cal === this.semAt(0).cal ? null : s.insc };
+    const M = this.materialize(c), k = this.calK(cal), sh = v => this.sId(this.sIdx(v) + 1), plan = {}; let corridas = 0;
+    Object.keys(M.plan).forEach(id => { const v = M.plan[id]; if (this.calK(v) >= k) { plan[id] = sh(v); corridas++; } else plan[id] = v; });
+    if (k === 0) M.insc.forEach(id => { plan[id] = sh(cal); corridas++; });
+    return { intSem: cal, plan, insc: k === 0 ? null : M.insc, semCount: corridas ? M.semCount + 1 : M.semCount };
+  }
   // Lo que se puede cursar ahora (correlativas en regla), sin lo que se reconoce en el intercambio
   disponibles(c) { const recSet = new Set(this.recIds(c)); return c.pend.filter(m => c.ev[m.id].ok && !recSet.has(m.id)).sort((a, b) => a.anio - b.anio || ORD[a.cat] - ORD[b.cat]); }
   // Chequeo de la inscripción del semestre actual. Cada ítem es { t: 'ok' | 'warn' | 'bad', title, sub }.
@@ -261,6 +272,8 @@ export class Motor {
     const items = [], push = (t, title, sub) => items.push({ t, title, sub });
     const nW = ms.reduce((a, m) => a + 1 + (c.att[m.id] ? 1 : 0), 0);
     const exc = (nT > 1 ? 1 : 0) + (nW > norm ? 1 : 0);
+    // Los seminarios cuentan como materia: se aclara en el total
+    const semis = ms.filter(m => c.att[m.id]).map(m => 'el ' + c.att[m.id].nombre.replace('Seminario de Profundización Tecnológica', 'Seminario')), cont = semis.length ? 'Contando ' + this.join(semis) + '. ' : '';
     const tallerAvail = availNow.some(m => m.cat === 'taller');
     if (nW > R.maxMaterias) push('bad', nW + ' materias', 'El máximo es ' + R.maxMaterias + '.');
     else if (nT > 1 && nW >= 5) push('bad', nT + ' talleres y ' + nW + ' materias', 'No se permite: 5 materias es solo para quien cursa un taller.');
@@ -268,14 +281,14 @@ export class Motor {
     else {
       if (nT > 1) push('warn', nT + ' talleres', 'Necesitás una excepción de la carrera.');
       if (nTr > R.maxTransversales) push('warn', nTr + ' talleres transversales', 'Lo recomendado es uno por semestre. Si querés cursar ' + (nTr === 2 ? 'dos' : nTr) + ', consultalo con la carrera.');
-      if (nW > norm) push('warn', nW + ' materias', 'La carga recomendada para este semestre es de ' + norm + '. Si querés sumar una más, consultalo con la carrera.');
+      if (nW > norm) push('warn', nW + ' materias', cont + 'La carga recomendada para este semestre es de ' + norm + '. Si querés sumar una más, consultalo con la carrera.');
     }
     const lenOf = ins => this.autoProject(c, s.intSem, this.recIds(c), ins).filter(x => x.ids.length || x.isInt).length;
     const sugI = this.suggestion(c), extra = nW && info0.cal !== s.intSem ? lenOf(ids) - lenOf(sugI) : 0;
     if (extra > 0) push('warn', 'Suma un semestre', 'Volviendo a la propuesta, no pasa.');
     if (nT === 1) push('ok', 'Un taller'); else if (!nT && tallerAvail) push('warn', 'Sin taller', 'Tenés uno disponible.');
-    if (nW && nW <= norm && !(nW < norm && addFit)) push('ok', nW + ' materias');
-    else if (nW < norm && addFit) push('ok', this.pl(nW, 'materia'), norm - nW === 1 ? 'Todavía podés sumar una más.' : 'Todavía podés sumar ' + (norm - nW) + ' más.');
+    if (nW && nW <= norm && !(nW < norm && addFit)) push('ok', nW + ' materias', cont ? cont.trim() : undefined);
+    else if (nW < norm && addFit) push('ok', this.pl(nW, 'materia'), cont + (norm - nW === 1 ? 'Todavía podés sumar una más.' : 'Todavía podés sumar ' + (norm - nW) + ' más.'));
     const blocked = ms.filter(m => !c.ev[m.id].ok);
     if (blocked.length) push('bad', blocked.length === 1 ? blocked[0].corto + ', todavía no' : this.pl(blocked.length, 'materia') + ', todavía no', blocked.length === 1 ? this.falta(c.ev[blocked[0].id], c.by) + '.' : 'Te faltan correlativas.');
     else if (ms.length) push('ok', 'Correlativas en regla');
